@@ -1,229 +1,94 @@
-WVSTREAMS=.
-WVSTREAMS_SRC= # Clear WVSTREAMS_SRC so wvrules.mk uses its WVSTREAMS_foo
-VPATH=$(libdir)
-include wvrules.mk
-override enable_efence=no
+# This top-level makefile will automatically build a copy of wvstreams using
+# the versions of xplc and openssl in wvports.
 
-ifneq (${_WIN32},)
-  $(error "Use 'make -f Makefile-win32' instead!")
-endif
+include config.mk
 
-export WVSTREAMS
+SUBDIRS=retchmail wvdial wvstreams wvtftp
 
-XPATH=include
+.PHONY: default clean mrclean check FORCE $(SUBDIRS)
+default: $(SUBDIRS)
 
-include vars.mk
-
-SUBDIRS = gnulib
-
-all: runconfigure xplc $(TARGETS)
-
-.PHONY: xplc xplc/clean install-xplc
-xplc:
-xplc/clean:
-install-xplc:
-
-ifeq ("$(build_xplc)", "yes")
-
-xplc:
-	$(MAKE) -C xplc
-
-xplc/clean:
-	$(MAKE) -C xplc clean
-
-install-xplc: xplc
-	$(INSTALL) -d $(DESTDIR)$(includedir)/wvstreams/xplc
-	$(INSTALL_DATA) $(wildcard xplc/include/xplc/*.h) $(DESTDIR)$(includedir)/wvstreams/xplc
-	$(INSTALL) -d $(DESTDIR)$(libdir)
-	$(INSTALL_DATA) xplc/libxplc-cxx.a $(DESTDIR)$(libdir)
-
-endif
-
-.PHONY: clean depend dust kdoc doxygen install install-shared install-dev install-xplc uninstall tests dishes dist distclean realclean test
-
-# FIXME: little trick to ensure that the wvautoconf.h.in file is there
-.PHONY: dist-hack-clean
-dist-hack-clean:
-	@rm -f stamp-h.in
-
-export AM_CFLAGS
-AM_CFLAGS=-fPIC
-gnulib/libgnu.a:
-	$(call subdirs_func,libgnu.a,gnulib)
-
-# Comment this assignment out for a release.
-ifdef PKGSNAPSHOT
-SNAPDATE=+$(shell date +%Y%m%d)
-endif
-
-dist-hook: dist-hack-clean configure
-	@rm -rf autom4te.cache
-	@if test -d .xplc; then \
-	    echo '--> Preparing XPLC for dist...'; \
-	    $(MAKE) -C .xplc clean patch && \
-	    cp -Lpr .xplc/build/xplc .; \
-	fi
-
-runconfigure: config.mk include/wvautoconf.h gnulib/Makefile
-
-ifndef CONFIGURING
-configure=$(error Please run the "configure" script)
+ifeq ($(WV_BUILD_MINGW),1)
+DLLEXT=a
+update_lib:=true
 else
-configure:=
-endif
-
-config.mk: configure config.mk.in
-	$(call configure)
-
-include/wvautoconf.h: include/wvautoconf.h.in
-	$(call configure)
-
-gnulib/Makefile: gnulib/Makefile.in
-	$(call configure)
-
-# FIXME: there is some confusion here
-ifdef WE_ARE_DIST
-aclocal.m4: $(wildcard gnulib/m4/*.m4) acinclude.m4
-	$(warning "$@" is old, please run "aclocal -I gnulib/m4")
-
-configure: configure.ac config.mk.in include/wvautoconf.h.in aclocal.m4
-	$(warning "$@" is old, please run "autoconf")
-
-include/wvautoconf.h.in: configure.ac aclocal.m4
-	$(warning "$@" is old, please run "autoheader")
+ifeq "$(shell uname -s)" "Darwin"
+DLLEXT=dylib
+update_lib:=$(warning FIXME: I don't know how to generate symlinks for shared libraries.)
 else
-aclocal.m4: $(wildcard gnulib/m4/*.m4) acinclude.m4
-	aclocal -I gnulib/m4
-	@touch $@
-
-configure: configure.ac include/wvautoconf.h.in aclocal.m4
-	autoconf
-	@rm -f config.mk include/wvautoconf.h gnulib/Makefile
-	@touch $@
-
-include/wvautoconf.h.in: configure.ac aclocal.m4
-	autoheader
-	@touch $@
+DLLEXT=so
+update_lib=PATH=${PATH}:/sbin ldconfig -N lib
+endif
 endif
 
-ifeq ($(VERBOSE),)
-define wild_clean
-	@list=`echo $(wildcard $(1))`; \
-		test -z "$${list}" || sh -c "rm -rf $${list}"
+define make_subdir
+	@echo
+	@echo "--> Making $(if $2,$2 in )$(if $1,$1,$@)..."
+	@+$(MAKE) -C $(if $1,$1,$@) --no-print-directory $3 $2
 endef
+
+include wvports/subdir.mk
+
+export LD_LIBRARY_PATH:=$(PWD)/lib:$(LD_LIBRARY_PATH)
+export PKG_CONFIG_PATH:=$(PWD)/wvstreams/pkgconfig:$(PWD)/wvports/xplc/build/xplc/dist:$(PKG_CONFIG_PATH)
+export WVSTREAMS:=$(PWD)/wvstreams
+
+clean: $(addsuffix /clean,$(SUBDIRS))
+
+%/clean: FORCE
+	$(call make_subdir,$*,clean)
+
+mrclean: clean wvports/clean
+	$(call make_subdir,wvstreams,realclean)
+
+check: $(addsuffix /check,wvstreams)
+
+%/check: % FORCE
+	$(call make_subdir,$*,test)
+
+nitlog planit:
+	$(error These projects are PHP, go do something sensible instead!)
+
+replytolist:
+	$(error I don't think I'll ever be smart enough to build this.)
+
+retchmail: wvstreams
+	ln -sf ../wvver.h ../wvstreams/wvrules.mk $@
+	$(call make_subdir)
+
+schedulator:
+	$(error I don't know (yet!) how to build $@...)
+
+twc: wvstreams
+	$(error I don't know (yet!) how to build $@...)
+
+unikonf:
+	$(error I don't know (yet!) how to build $@...)
+
+unity:
+	$(error I don't know (yet!) how to build $@...)
+
+wvdial: wvstreams
+	ln -sf ../wvver.h ../wvstreams/wvrules.mk $@
+	$(call make_subdir)
+
+wvstreams: wvports/zlib wvports/openssl wvports/xplc wvports/dbus
+ifeq ($(WV_BUILD_MINGW),1)
+	$(MAKE) -C wvstreams -f Makefile-win32
 else
-define wild_clean
-	@list=`echo $(wildcard $(1))`; \
-		test -z "$${list}" || sh -cx "rm -rf $${list}"
-endef
+	$(call make_subdir)
 endif
 
-realclean: distclean
-	$(call wild_clean,$(REALCLEAN))
+wvsync: wvstreams
+	$(error I don't know (yet!) how to build $@...)
 
+wvtftp: wvstreams
+	cd $@ && cmake .
+	$(call make_subdir)
 
-distclean: clean
-	$(call wild_clean,$(DISTCLEAN))
-	@rm -rf autom4te.cache
-	@rm -f gnulib/Makefile
-	@rm -f pkgconfig/*.pc
-	@rm -f .xplc
+xplcidl:
+	$(error I don't know (yet!) how to build $@...)
 
-clean: depend dust xplc/clean
-	@if ! test -f gnulib/Makefile; then echo 'clean:' >gnulib/Makefile; fi
-	$(subdirs)
-	@if test `wc -c <gnulib/Makefile` = '7'; then rm gnulib/Makefile; fi
-	$(call wild_clean,$(TARGETS) uniconf/daemon/uniconfd \
-		$(GARBAGE) $(TESTS) tmp.ini \
-		$(shell find . -name '*.o' -o -name '*.moc'))
-
-depend:
-	$(call wild_clean,$(shell find . -name '.*.d'))
-
-dust:
-	$(call wild_clean,$(shell find . -name 'core' -o -name '*~' -o -name '.#*') $(wildcard *.d))
-
-kdoc:
-	kdoc -f html -d Docs/kdoc-html --name wvstreams --strip-h-path */*.h
-
-doxygen:
-	doxygen
-
-ifeq ("$(with_readline)", "no")
-install: install-shared install-dev install-xplc install-uniconfd
-else
-install: install-shared install-dev install-xplc install-uniconfd install-wsd
-endif
-
-install-shared: $(TARGETS_SO)
-	$(INSTALL) -d $(DESTDIR)$(libdir)
-	for i in $(TARGETS_SO); do \
-	    $(INSTALL_PROGRAM) $$i.$(SO_VERSION) $(DESTDIR)$(libdir)/ ; \
-	done
-	$(INSTALL) -d $(DESTDIR)$(sysconfdir)
-	$(INSTALL_DATA) uniconf/daemon/uniconf.conf $(DESTDIR)$(sysconfdir)/
-
-install-dev: $(TARGETS_SO) $(TARGETS_A)
-	$(INSTALL) -d $(DESTDIR)$(includedir)/wvstreams
-	$(INSTALL_DATA) $(wildcard include/*.h) $(DESTDIR)$(includedir)/wvstreams
-	$(INSTALL) -d $(DESTDIR)$(libdir)
-	for i in $(TARGETS_A); do \
-	    $(INSTALL_DATA) $$i $(DESTDIR)$(libdir); \
-	done
-	cd $(DESTDIR)$(libdir) && for i in $(TARGETS_SO); do \
-	    rm -f $$i; \
-	    $(LN_S) $$i.$(SO_VERSION) $$i; \
-	done
-	$(INSTALL) -d $(DESTDIR)$(libdir)/pkgconfig
-	$(INSTALL_DATA) $(filter-out %-uninstalled.pc, $(wildcard pkgconfig/*.pc)) $(DESTDIR)$(libdir)/pkgconfig
-	$(INSTALL) -d $(DESTDIR)$(bindir)
-	$(INSTALL) wvtesthelper wvtestmeter $(DESTDIR)$(bindir)
-	$(INSTALL) -d $(DESTDIR)$(libdir)/valgrind
-	$(INSTALL) wvstreams.supp $(DESTDIR)$(libdir)/valgrind
-
-uniconfd: uniconf/daemon/uniconfd uniconf/daemon/uniconfd.ini \
-          uniconf/daemon/uniconfd.8
-
-install-uniconfd: uniconfd uniconf/tests/uni uniconf/tests/uni.8
-	$(INSTALL) -d $(DESTDIR)$(bindir)
-	$(INSTALL_PROGRAM) uniconf/tests/uni $(DESTDIR)$(bindir)/
-	$(INSTALL) -d $(DESTDIR)$(sbindir)
-	$(INSTALL_PROGRAM) uniconf/daemon/uniconfd $(DESTDIR)$(sbindir)/
-	$(INSTALL) -d $(DESTDIR)$(localstatedir)/lib/uniconf
-	touch $(DESTDIR)$(localstatedir)/lib/uniconf/uniconfd.ini
-	$(INSTALL) -d $(DESTDIR)$(mandir)/man8
-	$(INSTALL_DATA) uniconf/daemon/uniconfd.8 $(DESTDIR)$(mandir)/man8
-	$(INSTALL_DATA) uniconf/tests/uni.8 $(DESTDIR)$(mandir)/man8
-
-install-wsd: ipstreams/tests/wsd
-	$(INSTALL) -d $(DESTDIR)$(bindir)
-	$(INSTALL_PROGRAM) ipstreams/tests/wsd $(DESTDIR)$(bindir)/
-
-uninstall:
-	$(tbd)
-
-$(TESTS): $(LIBUNICONF) $(LIBWVTEST) $(LIBWVDBUS)
-$(addsuffix .o,$(TESTS)):
-tests: $(TESTS)
-
-include $(filter-out xplc%,$(wildcard */rules.mk */*/rules.mk)) /dev/null
-
--include $(shell find . -name '.*.d') /dev/null
-
-test: runconfigure all tests qtest
-
-qtest: runconfigure all wvtestmain
-	LD_LIBRARY_PATH="$(LD_LIBRARY_PATH):$(WVSTREAMS_LIB)" $(WVTESTRUN) $(MAKE) runtests
-
-runtests:
-	$(VALGRIND) ./wvtestmain '$(TESTNAME)'
-ifeq ("$(TESTNAME)", "unitest")
-	cd uniconf/tests && DAEMON=0 ./unitest.sh
-	cd uniconf/tests && DAEMON=1 ./unitest.sh
-endif
-
-wvtestmain: \
-	$(call objects, $(filter-out ./Win32WvStreams/%, \
-		$(shell find . -type d -name t))) \
-	$(LIBWVDBUS) $(LIBUNICONF) $(LIBWVSTREAMS) $(LIBWVTEST)
+zen:
+	$(error I don't know (yet!) how to build $@...)
 

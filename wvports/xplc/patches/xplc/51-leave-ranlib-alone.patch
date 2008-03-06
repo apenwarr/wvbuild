@@ -1,0 +1,17 @@
+2007-08-01  averyp <averyp@averyp-server>
+
+	* Don't override RANLIB if it's already set.
+
+diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' ../.build_orig/xplc/config/vars.mk xplc/config/vars.mk
+--- ../.build_orig/xplc/config/vars.mk	2004-10-10 15:25:27.000000000 -0400
++++ xplc/config/vars.mk	2007-08-01 15:49:39.000000000 -0400
+@@ -41,7 +41,9 @@ DIST=$(PACKAGE_TARNAME)-$(PACKAGE_VERSIO
+ #ARFLAGS=rcS
+ ARFLAGS=rc
+ 
++ifeq ("$(RANLIB)", "")
+ RANLIB=ranlib
++endif
+ 
+ CXXFLAGS+=-pipe -Iinclude
+ 

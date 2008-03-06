@@ -1,0 +1,303 @@
+2007-08-17  averyp <averyp@averyp-server>
+
+	* Some rather evil patches to disable locking and remove all
+	  calls to system-dependent stuff when using dbus-message.c.
+	  This reduces the number of files we have to link, and also
+	  removes the need to for some stuff to work at all (e.g. in
+	  Win32, where they currently don't!)  This should be enough
+	  to make WvDBus work.
+
+
+diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' --exclude '*.l[oa]' --exclude '*.lai' --exclude '*.o' --exclude .deps --exclude .libs --exclude Makefile --exclude 'stamp-*' --exclude messagebus --exclude rc.messagebus --exclude session.conf --exclude system.conf --exclude config.h --exclude config.log --exclude config.status --exclude dbus-1.pc --exclude Doxyfile --exclude libtool --exclude data ../.build_orig/dbus/dbus/dbus-dataslot.c dbus/dbus/dbus-dataslot.c
+--- ../.build_orig/dbus/dbus/dbus-dataslot.c	2007-07-24 11:39:08.000000000 -0400
++++ dbus/dbus/dbus-dataslot.c	2007-08-17 16:56:30.000000000 -0400
+@@ -70,7 +70,7 @@ _dbus_data_slot_allocator_alloc (DBusDat
+ {
+   dbus_int32_t slot;
+ 
+-  _dbus_mutex_lock (*mutex_loc);
++  _DBUS_LOCK (*mutex_loc);
+ 
+   if (allocator->n_allocated_slots == 0)
+     {
+@@ -144,7 +144,7 @@ _dbus_data_slot_allocator_alloc (DBusDat
+                  slot, allocator, allocator->n_allocated_slots, allocator->n_used_slots);
+   
+  out:
+-  _dbus_mutex_unlock (*(allocator->lock_loc));
++  _DBUS_UNLOCK (*(allocator->lock_loc));
+   return slot >= 0;
+ }
+ 
+@@ -163,7 +163,7 @@ void
+ _dbus_data_slot_allocator_free (DBusDataSlotAllocator *allocator,
+                                 dbus_int32_t          *slot_id_p)
+ {
+-  _dbus_mutex_lock (*(allocator->lock_loc));
++  _DBUS_LOCK (*(allocator->lock_loc));
+   
+   _dbus_assert (*slot_id_p < allocator->n_allocated_slots);
+   _dbus_assert (allocator->allocated_slots[*slot_id_p].slot_id == *slot_id_p);
+@@ -173,7 +173,7 @@ _dbus_data_slot_allocator_free (DBusData
+ 
+   if (allocator->allocated_slots[*slot_id_p].refcount > 0)
+     {
+-      _dbus_mutex_unlock (*(allocator->lock_loc));
++      _DBUS_UNLOCK (*(allocator->lock_loc));
+       return;
+     }
+ 
+@@ -195,11 +195,11 @@ _dbus_data_slot_allocator_free (DBusData
+       allocator->n_allocated_slots = 0;
+       allocator->lock_loc = NULL;
+ 
+-      _dbus_mutex_unlock (*mutex_loc);
++      _DBUS_UNLOCK (*mutex_loc);
+     }
+   else
+     {
+-      _dbus_mutex_unlock (*(allocator->lock_loc));
++      _DBUS_UNLOCK (*(allocator->lock_loc));
+     }
+ }
+ 
+@@ -245,10 +245,10 @@ _dbus_data_slot_list_set  (DBusDataSlotA
+    * be e.g. realloc()ing allocated_slots. We avoid doing this if asserts
+    * are disabled, since then the asserts are empty.
+    */
+-  _dbus_mutex_lock (*(allocator->lock_loc));
++  _DBUS_LOCK (*(allocator->lock_loc));
+   _dbus_assert (slot < allocator->n_allocated_slots);
+   _dbus_assert (allocator->allocated_slots[slot].slot_id == slot);
+-  _dbus_mutex_unlock (*(allocator->lock_loc));
++  _DBUS_UNLOCK (*(allocator->lock_loc));
+ #endif
+   
+   if (slot >= list->n_slots)
+@@ -302,11 +302,11 @@ _dbus_data_slot_list_get  (DBusDataSlotA
+    * be e.g. realloc()ing allocated_slots. We avoid doing this if asserts
+    * are disabled, since then the asserts are empty.
+    */
+-  _dbus_mutex_lock (*(allocator->lock_loc));
++  _DBUS_LOCK (*(allocator->lock_loc));
+   _dbus_assert (slot >= 0);
+   _dbus_assert (slot < allocator->n_allocated_slots);
+   _dbus_assert (allocator->allocated_slots[slot].slot_id == slot);
+-  _dbus_mutex_unlock (*(allocator->lock_loc));
++  _DBUS_UNLOCK (*(allocator->lock_loc));
+ #endif
+ 
+   if (slot >= list->n_slots)
+diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' --exclude '*.l[oa]' --exclude '*.lai' --exclude '*.o' --exclude .deps --exclude .libs --exclude Makefile --exclude 'stamp-*' --exclude messagebus --exclude rc.messagebus --exclude session.conf --exclude system.conf --exclude config.h --exclude config.log --exclude config.status --exclude dbus-1.pc --exclude Doxyfile --exclude libtool --exclude data ../.build_orig/dbus/dbus/dbus-internals.c dbus/dbus/dbus-internals.c
+--- ../.build_orig/dbus/dbus/dbus-internals.c	2007-07-24 11:39:08.000000000 -0400
++++ dbus/dbus/dbus-internals.c	2007-08-17 17:06:31.000000000 -0400
+@@ -201,7 +201,7 @@ init_warnings(void)
+   if (!warn_initted)
+     {
+       const char *s;
+-      s = _dbus_getenv ("DBUS_FATAL_WARNINGS");
++      s = 0; // _dbus_getenv ("DBUS_FATAL_WARNINGS");
+       if (s && *s)
+         {
+           if (*s == '0')
+@@ -247,7 +247,7 @@ _dbus_warn (const char *format,
+   vfprintf (stderr, format, args);
+   va_end (args);
+ 
+-  if (fatal_warnings)
++  if (0 && fatal_warnings)
+     {
+       fflush (stderr);
+       _dbus_abort ();
+@@ -271,13 +271,13 @@ _dbus_warn_check_failed(const char *form
+   if (!warn_initted)
+     init_warnings ();
+ 
+-  fprintf (stderr, "process %lu: ", _dbus_pid_for_log ());
++  // fprintf (stderr, "process %lu: ", _dbus_pid_for_log ());
+   
+   va_start (args, format);
+   vfprintf (stderr, format, args);
+   va_end (args);
+ 
+-  if (fatal_warnings_on_check_failed)
++  if (0 && fatal_warnings_on_check_failed)
+     {
+       fflush (stderr);
+       _dbus_abort ();
+@@ -304,7 +304,7 @@ _dbus_verbose_init (void)
+ {
+   if (!verbose_initted)
+     {
+-      const char *p = _dbus_getenv ("DBUS_VERBOSE"); 
++      const char *p = 0; // _dbus_getenv ("DBUS_VERBOSE"); 
+       verbose = p != NULL && *p == '1';
+       verbose_initted = TRUE;
+     }
+@@ -476,6 +476,7 @@ _dbus_dup_string_array (const char **arr
+   return copy;
+ }
+ 
++#if LINK_UUID_STUFF
+ /**
+  * Checks whether a string array contains the given string.
+  * 
+@@ -746,6 +747,7 @@ _dbus_get_local_machine_uuid_encoded (DB
+ 
+   return ok;
+ }
++#endif
+ 
+ #ifdef DBUS_BUILD_TESTS
+ /**
+@@ -810,7 +812,7 @@ _dbus_real_assert (dbus_bool_t  conditio
+                    int          line,
+                    const char  *func)
+ {
+-  if (_DBUS_UNLIKELY (!condition))
++  if (0 && _DBUS_UNLIKELY (!condition))
+     {
+       _dbus_warn ("%lu: assertion failed \"%s\" file \"%s\" line %d function %s\n",
+                   _dbus_pid_for_log (), condition_text, file, line, func);
+@@ -835,7 +837,7 @@ _dbus_real_assert_not_reached (const cha
+ {
+   _dbus_warn ("File \"%s\" line %d process %lu should not have been reached: %s\n",
+               file, line, _dbus_pid_for_log (), explanation);
+-  _dbus_abort ();
++  // _dbus_abort ();
+ }
+ #endif /* DBUS_DISABLE_ASSERT */
+   
+@@ -904,7 +906,7 @@ _dbus_test_oom_handling (const char     
+   _dbus_verbose ("\n=================\n%s: about %d mallocs total\n=================\n",
+                  description, approx_mallocs);
+ 
+-  setting = _dbus_getenv ("DBUS_TEST_MALLOC_FAILURES");
++  setting = 0; // _dbus_getenv ("DBUS_TEST_MALLOC_FAILURES");
+   if (setting != NULL)
+     {
+       DBusString str;
+diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' --exclude '*.l[oa]' --exclude '*.lai' --exclude '*.o' --exclude .deps --exclude .libs --exclude Makefile --exclude 'stamp-*' --exclude messagebus --exclude rc.messagebus --exclude session.conf --exclude system.conf --exclude config.h --exclude config.log --exclude config.status --exclude dbus-1.pc --exclude Doxyfile --exclude libtool --exclude data ../.build_orig/dbus/dbus/dbus-internals.h dbus/dbus/dbus-internals.h
+--- ../.build_orig/dbus/dbus/dbus-internals.h	2007-07-24 11:39:08.000000000 -0400
++++ dbus/dbus/dbus-internals.h	2007-08-17 17:01:21.000000000 -0400
+@@ -281,11 +281,19 @@ dbus_bool_t _dbus_register_shutdown_func
+ extern int _dbus_current_generation;
+ 
+ /* Thread initializers */
++#if USE_THREADS
+ #define _DBUS_LOCK_NAME(name)           _dbus_lock_##name
+ #define _DBUS_DECLARE_GLOBAL_LOCK(name) extern DBusMutex  *_dbus_lock_##name
+ #define _DBUS_DEFINE_GLOBAL_LOCK(name)  DBusMutex         *_dbus_lock_##name  
+ #define _DBUS_LOCK(name)                _dbus_mutex_lock   (_dbus_lock_##name)
+ #define _DBUS_UNLOCK(name)              _dbus_mutex_unlock (_dbus_lock_##name)
++#else
++#define _DBUS_LOCK_NAME(name)           _dbus_lock_##name
++#define _DBUS_DECLARE_GLOBAL_LOCK(name) extern DBusMutex  *_dbus_lock_##name
++#define _DBUS_DEFINE_GLOBAL_LOCK(name)  DBusMutex         *_dbus_lock_##name  
++#define _DBUS_LOCK(name)                1
++#define _DBUS_UNLOCK(name)              0
++#endif
+ 
+ /* 1-5 */
+ _DBUS_DECLARE_GLOBAL_LOCK (list);
+diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' --exclude '*.l[oa]' --exclude '*.lai' --exclude '*.o' --exclude .deps --exclude .libs --exclude Makefile --exclude 'stamp-*' --exclude messagebus --exclude rc.messagebus --exclude session.conf --exclude system.conf --exclude config.h --exclude config.log --exclude config.status --exclude dbus-1.pc --exclude Doxyfile --exclude libtool --exclude data ../.build_orig/dbus/dbus/dbus-message.c dbus/dbus/dbus-message.c
+--- ../.build_orig/dbus/dbus/dbus-message.c	2007-07-24 11:39:08.000000000 -0400
++++ dbus/dbus/dbus-message.c	2007-08-17 17:00:08.000000000 -0400
+@@ -1370,7 +1370,7 @@ dbus_message_ref (DBusMessage *message)
+   _dbus_return_val_if_fail (message->generation == _dbus_current_generation, NULL);
+   _dbus_return_val_if_fail (!message->in_cache, NULL);
+   
+-  old_refcount = _dbus_atomic_inc (&message->refcount);
++  old_refcount = message->refcount.value++; // _dbus_atomic_inc (&message->refcount);
+   _dbus_assert (old_refcount >= 1);
+ 
+   return message;
+@@ -1392,7 +1392,7 @@ dbus_message_unref (DBusMessage *message
+   _dbus_return_if_fail (message->generation == _dbus_current_generation);
+   _dbus_return_if_fail (!message->in_cache);
+ 
+-  old_refcount = _dbus_atomic_dec (&message->refcount);
++  old_refcount = message->refcount.value--; // _dbus_atomic_dec (&message->refcount);
+ 
+   _dbus_assert (old_refcount >= 0);
+ 
+@@ -2619,6 +2619,7 @@ dbus_message_has_path (DBusMessage   *me
+  * @param path place to store allocated array of path components; #NULL set here if no path field exists
+  * @returns #FALSE if no memory to allocate the array
+  */
++#if 0
+ dbus_bool_t
+ dbus_message_get_path_decomposed (DBusMessage   *message,
+                                   char        ***path)
+@@ -2639,6 +2640,7 @@ dbus_message_get_path_decomposed (DBusMe
+     }
+   return TRUE;
+ }
++#endif
+ 
+ /**
+  * Sets the interface this message is being sent to
+diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' --exclude '*.l[oa]' --exclude '*.lai' --exclude '*.o' --exclude .deps --exclude .libs --exclude Makefile --exclude 'stamp-*' --exclude messagebus --exclude rc.messagebus --exclude session.conf --exclude system.conf --exclude config.h --exclude config.log --exclude config.status --exclude dbus-1.pc --exclude Doxyfile --exclude libtool --exclude data ../.build_orig/dbus/dbus/dbus-string.c dbus/dbus/dbus-string.c
+--- ../.build_orig/dbus/dbus/dbus-string.c	2007-07-24 11:39:09.000000000 -0400
++++ dbus/dbus/dbus-string.c	2007-08-17 16:49:23.000000000 -0400
+@@ -1201,7 +1201,7 @@ _dbus_string_append_printf_valist  (DBus
+   DBUS_VA_COPY (args_copy, args);
+ 
+   /* Measure the message length without terminating nul */
+-  len = _dbus_printf_string_upper_bound (format, args);
++  len = 256; // _dbus_printf_string_upper_bound (format, args);
+ 
+   if (!_dbus_string_lengthen (str, len))
+     {
+diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' --exclude '*.l[oa]' --exclude '*.lai' --exclude '*.o' --exclude .deps --exclude .libs --exclude Makefile --exclude 'stamp-*' --exclude messagebus --exclude rc.messagebus --exclude session.conf --exclude system.conf --exclude config.h --exclude config.log --exclude config.status --exclude dbus-1.pc --exclude Doxyfile --exclude libtool --exclude data ../.build_orig/dbus/dbus/dbus-threads.c dbus/dbus/dbus-threads.c
+--- ../.build_orig/dbus/dbus/dbus-threads.c	2007-07-24 11:39:09.000000000 -0400
++++ dbus/dbus/dbus-threads.c	2007-08-17 16:24:42.000000000 -0400
+@@ -417,21 +417,21 @@ init_locks (void)
+   
+   DBusMutex **global_locks[] = {
+ #define LOCK_ADDR(name) (& _dbus_lock_##name)
+-    LOCK_ADDR (win_fds),
++//    LOCK_ADDR (win_fds),
+     LOCK_ADDR (sid_atom_cache),
+     LOCK_ADDR (list),
+-    LOCK_ADDR (connection_slots),
+-    LOCK_ADDR (pending_call_slots),
+-    LOCK_ADDR (server_slots),
++//    LOCK_ADDR (connection_slots),
++//    LOCK_ADDR (pending_call_slots),
++//    LOCK_ADDR (server_slots),
+     LOCK_ADDR (message_slots),
+     LOCK_ADDR (atomic),
+-    LOCK_ADDR (bus),
+-    LOCK_ADDR (bus_datas),
+-    LOCK_ADDR (shutdown_funcs),
+-    LOCK_ADDR (system_users),
+-    LOCK_ADDR (message_cache),
+-    LOCK_ADDR (shared_connections),
+-    LOCK_ADDR (machine_uuid)
++//    LOCK_ADDR (bus),
++//    LOCK_ADDR (bus_datas),
++//    LOCK_ADDR (shutdown_funcs),
++//    LOCK_ADDR (system_users),
++//    LOCK_ADDR (message_cache),
++//    LOCK_ADDR (shared_connections),
++//    LOCK_ADDR (machine_uuid)
+ #undef LOCK_ADDR
+   };
+ 
+diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' --exclude '*.l[oa]' --exclude '*.lai' --exclude '*.o' --exclude .deps --exclude .libs --exclude Makefile --exclude 'stamp-*' --exclude messagebus --exclude rc.messagebus --exclude session.conf --exclude system.conf --exclude config.h --exclude config.log --exclude config.status --exclude dbus-1.pc --exclude Doxyfile --exclude libtool --exclude data ../.build_orig/dbus/dbus/Makefile.in dbus/dbus/Makefile.in
+--- ../.build_orig/dbus/dbus/Makefile.in	2007-07-27 16:57:24.000000000 -0400
++++ dbus/dbus/Makefile.in	2007-08-17 18:22:19.000000000 -0400
+@@ -75,8 +75,10 @@ am__objects_1 = dbus-address.lo dbus-aut
+ 	dbus-uuidgen.lo dbus-watch.lo
+ am__objects_2 = dbus-dataslot.lo dbus-hash.lo dbus-internals.lo \
+ 	dbus-list.lo dbus-marshal-basic.lo dbus-memory.lo \
+-	dbus-mempool.lo dbus-string.lo dbus-sysdeps.lo \
+-	dbus-sysdeps-pthread.lo dbus-sysdeps-unix.lo dbus-userdb.lo
++	dbus-mempool.lo dbus-string.lo \
++	
++#	dbus-sysdeps.lo \
++#	dbus-sysdeps-pthread.lo dbus-sysdeps-unix.lo dbus-userdb.lo
+ am_libdbus_1_la_OBJECTS = $(am__objects_1) $(am__objects_2)
+ libdbus_1_la_OBJECTS = $(am_libdbus_1_la_OBJECTS)
+ libdbus_1_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \

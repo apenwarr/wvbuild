@@ -1,17 +1,28 @@
-#!/bin/bash
-PORTS=$PWD/../wvports
-./configure \
-	--build=$(./config.guess) \
-	--host=i586-mingw32msvc \
-	--enable-exceptions \
-	--with-xplc=$PORTS/xplc/build/xplc \
-	CPPFLAGS="-mno-cygwin \
-		-I$PORTS/xplc/build/xplc/include \
-		-I$PORTS/zlib/build/zlib \
-		-I$PORTS/openssl/build/openssl/include $XCPPFLAGS" \
-	LDFLAGS="\
-		-L$PORTS/xplc/build/xplc \
-		-L$PORTS/zlib/build/zlib \
-		-L$PORTS/openssl/build/openssl" \
-	LIBS="-lxplc-cxx -lwsock32 -lgdi32" \
-	$@
+#!/bin/sh
+
+rm -f config.mk
+cat >config.mk <<-EOF
+	CONFIGHOST=--host=i586-mingw32msvc
+	CC=i586-mingw32msvc-gcc
+	AR=i586-mingw32msvc-ar
+	ARRC=\$(AR) rc
+	RANLIB=i586-mingw32msvc-ranlib
+	WV_BUILD_MINGW=1
+	export CC AR RANLIB
+EOF
+
+make wvports/zlib wvports/xplc wvports/openssl wvports/dbus wvports/boost
+
+echo "--> Configuring WvStreams..."
+(cd wvstreams && make -f Makefile-win32 runconfigure)
+(set -x; cd wvstreams && \
+	XCPPFLAGS="-I../wvports/boost/build/boost" \
+	./configure-mingw32 \
+		--disable-debug \
+		--disable-optimization \
+		--with-xplc=../wvports/xplc/build/xplc \
+		--with-openssl=../wvports/openssl/build/openssl \
+		--with-zlib=../wvports/zlib/build/zlib \
+		--with-dbus=../wvports/dbus/build/dbus \
+		"$@") || exit $?
+

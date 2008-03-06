@@ -1,0 +1,16 @@
+
+This branch can be used for building wvstreams for win32 using a mingw32
+cross compiler on Debian or Ubuntu.  I realize that's a bit convoluted, but
+it works well enough for now.
+
+We use only static libraries, not dynamic ones, mostly to avoid dealing with
+Windows DLL hell.
+
+To build:
+
+	apt-get install mingw32 mingw32-runtime mingw32-binutils ccache
+	./configure-mingw32
+	make
+
+If you have trouble, send a message to the wvstreams mailing list:
+	wvstreams-devel@googlegroups.com

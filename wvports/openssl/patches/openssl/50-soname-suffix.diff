@@ -1,0 +1,17 @@
+2007-10-07  Avery Pennarun <apenwarr@insight>
+
+	* Build the library with a -wvports extension to avoid conflicts
+	  with system-wide openssl libraries.
+
+diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' --exclude '*.l[oa]' --exclude '*.lai' --exclude '*.o' --exclude .deps --exclude .libs ../.build_orig/openssl/crypto/opensslv.h openssl/crypto/opensslv.h
+--- ../.build_orig/openssl/crypto/opensslv.h	2007-02-23 07:38:11.000000000 -0500
++++ openssl/crypto/opensslv.h	2007-10-07 01:45:15.000000000 -0400
+@@ -83,7 +83,7 @@
+  * should only keep the versions that are binary compatible with the current.
+  */
+ #define SHLIB_VERSION_HISTORY ""
+-#define SHLIB_VERSION_NUMBER "0.9.8"
++#define SHLIB_VERSION_NUMBER "42.42-wvports"
+ 
+ 
+ #endif /* HEADER_OPENSSLV_H */

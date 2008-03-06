@@ -1,0 +1,19 @@
+#!/bin/sh
+
+rm -f config.mk
+cat >config.mk <<-EOF
+	WVMAKEFILE=Makefile
+EOF
+
+make wvports/xplc wvports/openssl wvports/dbus
+
+echo "--> Configuring WvStreams..."
+(cd wvstreams && make runconfigure)
+(cd wvstreams && ./configure \
+		--enable-debug \
+		--disable-optimization \
+		--with-xplc=../wvports/xplc/build/xplc \
+		--with-openssl=../wvports/openssl/build/openssl \
+		--with-dbus=../wvports/dbus/build/dbus \
+		"$@") || exit $?
+

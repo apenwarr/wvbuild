@@ -1,0 +1,16 @@
+2007-08-01  averyp <averyp@averyp-server>
+
+	* Make it cross-compile in mingw32.
+
+diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' ../.build_orig/xplc/xplc/loader.cpp xplc/xplc/loader.cpp
+--- ../.build_orig/xplc/xplc/loader.cpp	2004-10-10 15:25:30.000000000 -0400
++++ xplc/xplc/loader.cpp	2007-08-01 15:13:37.000000000 -0400
+@@ -166,7 +166,7 @@ const char* loaderSymbol(void* aHandle,
+ 			 void** aPointer) {
+   const char* rv = 0;
+ 
+-  *aPointer = GetProcAddress(static_cast<HMODULE>(aHandle), aSymbol);
++  *aPointer = (void *)GetProcAddress(static_cast<HMODULE>(aHandle), aSymbol);
+ 
+   if(!aPointer)
+     rv = getErrorMessage();

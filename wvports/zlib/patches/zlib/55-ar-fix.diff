@@ -1,0 +1,16 @@
+2008-01-28  Avery Pennarun <averyp@averyp-server>
+
+	* Please describe your patch.
+
+diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' --exclude '*.l[oa]' --exclude '*.lai' --exclude '*.o' --exclude .deps --exclude .libs ../.build_orig/zlib/configure zlib/configure
+--- ../.build_orig/zlib/configure	2005-07-11 16:11:57.000000000 -0400
++++ zlib/configure	2008-01-28 23:28:35.000000000 -0500
+@@ -23,7 +23,7 @@ LDFLAGS="-L. ${LIBS}"
+ VER=`sed -n -e '/VERSION "/s/.*"\(.*\)".*/\1/p' < zlib.h`
+ VER2=`sed -n -e '/VERSION "/s/.*"\([0-9]*\\.[0-9]*\)\\..*/\1/p' < zlib.h`
+ VER1=`sed -n -e '/VERSION "/s/.*"\([0-9]*\)\\..*/\1/p' < zlib.h`
+-AR=${AR-"ar rc"}
++AR=${AR-"ar"}
+ RANLIB=${RANLIB-"ranlib"}
+ prefix=${prefix-/usr/local}
+ exec_prefix=${exec_prefix-'${prefix}'}

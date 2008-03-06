@@ -1,0 +1,68 @@
+2007-08-17  averyp <averyp@averyp-server>
+
+	* Please describe your patch.
+
+diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' ../.build_orig/dbus/configure dbus/configure
+--- ../.build_orig/dbus/configure	2007-07-27 16:57:26.000000000 -0400
++++ dbus/configure	2007-08-17 15:17:29.000000000 -0400
+@@ -25633,6 +25633,7 @@ done
+ 
+ #### Abstract sockets
+ 
++if test x$enable_abstract_sockets != xno; then
+ ac_ext=c
+ ac_cpp='$CPP $CPPFLAGS'
+ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+@@ -25741,7 +25742,7 @@ ac_cpp='$CPP $CPPFLAGS'
+ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ ac_compiler_gnu=$ac_cv_c_compiler_gnu
+-
++fi
+ 
+ if test x$enable_abstract_sockets = xyes; then
+     if test x$ac_cv_have_abstract_sockets = xno; then
+@@ -26107,10 +26108,10 @@ else
+         elif $have_libxml ; then
+                 with_xml=libxml
+                 dbus_use_libxml=true
+-        else
+-                { { echo "$as_me:$LINENO: error: No XML library found, check config.log for failed attempts" >&5
+-echo "$as_me: error: No XML library found, check config.log for failed attempts" >&2;}
+-   { (exit 1); exit 1; }; }
++#        else
++#                { { echo "$as_me:$LINENO: error: No XML library found, check config.log for failed attempts" >&5
++#echo "$as_me: error: No XML library found, check config.log for failed attempts" >&2;}
++#   { (exit 1); exit 1; }; }
+         fi
+ fi
+ 
+diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' ../.build_orig/dbus/Makefile.in dbus/Makefile.in
+--- ../.build_orig/dbus/Makefile.in	2007-07-27 16:57:25.000000000 -0400
++++ dbus/Makefile.in	2007-08-17 15:18:56.000000000 -0400
+@@ -307,6 +307,9 @@ all: config.h
+ am--refresh:
+ 	@:
+ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
++	true
++
++be_stupid:
+ 	@for dep in $?; do \
+ 	  case '$(am__configure_deps)' in \
+ 	    *$$dep*) \
+@@ -331,12 +334,12 @@ Makefile: $(srcdir)/Makefile.in $(top_bu
+ 	esac;
+ 
+ $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
+-	$(SHELL) ./config.status --recheck
++	true; # $(SHELL) ./config.status --recheck
+ 
+ $(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
+-	cd $(srcdir) && $(AUTOCONF)
++	true; # cd $(srcdir) && $(AUTOCONF)
+ $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
+-	cd $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
++	true; # cd $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
+ 
+ config.h: stamp-h1
+ 	@if test ! -f $@; then \
