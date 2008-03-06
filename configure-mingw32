@@ -16,7 +16,7 @@ EOF
 make wvports/zlib wvports/xplc wvports/openssl wvports/dbus wvports/boost
 
 echo "--> Configuring WvStreams..."
-(cd wvstreams && make -f Makefile-win32 runconfigure) || exit $?
+(cd wvstreams && make -f Makefile-win32 runconfigure)
 (set -x; cd wvstreams && \
 	XCPPFLAGS="-I../wvports/boost/build/boost" \
 	./configure-mingw32 \
