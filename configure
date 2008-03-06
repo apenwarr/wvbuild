@@ -10,7 +10,7 @@ EOF
 make wvports/xplc wvports/openssl wvports/dbus
 
 echo "--> Configuring WvStreams..."
-(cd wvstreams && make runconfigure) || exit $?
+(cd wvstreams && make runconfigure)
 (cd wvstreams && ./configure \
 		--enable-debug \
 		--disable-optimization \
