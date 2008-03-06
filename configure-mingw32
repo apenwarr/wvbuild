@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/sh -e
+
+./get-git-modules
 
 rm -f config.mk
 cat >config.mk <<-EOF
