@@ -3,7 +3,8 @@
 
 include config.mk
 
-SUBDIRS=retchmail wvdial wvstreams wvtftp
+#SUBDIRS=retchmail wvdial wvstreams wvtftp
+SUBDIRS=wvstreams
 
 .PHONY: default clean mrclean check FORCE $(SUBDIRS)
 default: $(SUBDIRS)
