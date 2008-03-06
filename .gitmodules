@@ -1,0 +1,3 @@
+[submodule "wvstreams"]
+	path = wvstreams
+	url = .git
