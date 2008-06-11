@@ -1,0 +1,37 @@
+2008-06-09  Lukasz Kosewski <lkosewsk@gmail.com>
+
+	* Remove the extern qualifier applied to variables if OPENSSL_EXPORT_VAR_AS_FUNCTION is defined, thus not changing behaviour at all while avoiding compiler errors.
+
+--- openssl.old/include/openssl/e_os2.h	2008-06-09 22:51:21.000000000 +0000
++++ openssl/include/openssl/e_os2.h	2008-06-09 22:52:49.000000000 +0000
+@@ -262,13 +262,16 @@ extern "C" {
+ 	#define foobar OPENSSL_GLOBAL_REF(foobar)
+ */
+ # define OPENSSL_IMPLEMENT_GLOBAL(type,name)			     \
+-	extern type _hide_##name;				     \
+-	type *_shadow_##name(void) { return &_hide_##name; }	     \
+-	static type _hide_##name
++	static type _hide_##name;				     \
++	type *_shadow_##name(void) { return &_hide_##name; }
++# define OPENSSL_INIT_GLOBAL(type,name,val)			     \
++	static type _hide_##name = val;				     \
++	type *_shadow_##name(void) { return &_hide_##name; }
+ # define OPENSSL_DECLARE_GLOBAL(type,name) type *_shadow_##name(void)
+ # define OPENSSL_GLOBAL_REF(name) (*(_shadow_##name()))
+ #else
+ # define OPENSSL_IMPLEMENT_GLOBAL(type,name) OPENSSL_GLOBAL type _shadow_##name
++# define OPENSSL_INIT_GLOBAL(type,name,val) OPENSSL_GLOBAL type _shadow_##name = val
+ # define OPENSSL_DECLARE_GLOBAL(type,name) OPENSSL_EXPORT type _shadow_##name
+ # define OPENSSL_GLOBAL_REF(name) _shadow_##name
+ #endif
+--- openssl.old/crypto/des/enc_read.c	2008-06-10 18:50:23.000000000 +0000
++++ openssl/crypto/des/enc_read.c	2008-06-10 18:50:52.000000000 +0000
+@@ -63,7 +63,7 @@
+ 
+ /* This has some uglies in it but it works - even over sockets. */
+ /*extern int errno;*/
+-OPENSSL_IMPLEMENT_GLOBAL(int,DES_rw_mode)=DES_PCBC_MODE;
++OPENSSL_INIT_GLOBAL(int,DES_rw_mode,DES_PCBC_MODE);
+ 
+ 
+ /*

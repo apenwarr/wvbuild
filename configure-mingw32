@@ -1,5 +1,7 @@
 #!/bin/sh -x
 
+set -e
+
 ./get-git-modules
 
 rm -f config.mk
