@@ -2,8 +2,8 @@
 
 	* Remove the extern qualifier applied to variables if OPENSSL_EXPORT_VAR_AS_FUNCTION is defined, thus not changing behaviour at all while avoiding compiler errors.
 
---- openssl.old/include/openssl/e_os2.h	2008-06-09 22:51:21.000000000 +0000
-+++ openssl/include/openssl/e_os2.h	2008-06-09 22:52:49.000000000 +0000
+--- openssl.old/e_os2.h	2008-06-09 22:51:21.000000000 +0000
++++ openssl/e_os2.h	2008-06-09 22:52:49.000000000 +0000
 @@ -262,13 +262,16 @@ extern "C" {
  	#define foobar OPENSSL_GLOBAL_REF(foobar)
  */
