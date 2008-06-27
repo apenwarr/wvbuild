@@ -3,7 +3,7 @@ include ../../config.mk
 include ../wvports.mk
 
 define unpack
-	ln -s openssl-0.9.8e $(BUILDDIR)/openssl
+	ln -s openssl-0.9.8g $(BUILDDIR)/openssl
 endef
 
 
