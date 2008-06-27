@@ -1,6 +1,6 @@
 #!/bin/sh -x
 
-./get-git-modules
+test -e wvstreams/Makefile || ./get-git-modules
 
 rm -f config.mk
 cat >config.mk <<-EOF
