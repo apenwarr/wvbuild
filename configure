@@ -7,7 +7,7 @@ cat >config.mk <<-EOF
 	WVMAKEFILE=Makefile
 EOF
 
-make wvports/xplc wvports/openssl wvports/dbus
+make wvports/xplc wvports/openssl wvports/dbus wvports/argp
 
 echo "--> Configuring WvStreams..."
 (cd wvstreams && make runconfigure)

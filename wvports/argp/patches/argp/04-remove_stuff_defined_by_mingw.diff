@@ -1,0 +1,20 @@
+2008-06-28  Lukasz Kosewski <lkosewsk@gmail.com>
+
+	* Mingw32 defines __argc and __argv as (*__p__arg{c,v})() respectively.  Of course, this breaks the actual implementations of these functions further on, which are not expecting a function pointer, but instead a simple type.  We'll just add types with no names in these declarations.
+
+--- argp.old/argp.h	2008-06-28 06:00:03.000000000 +0000
++++ argp/argp.h	2008-06-28 06:01:24.000000000 +0000
+@@ -398,11 +398,11 @@ struct argp_state
+    returned.  This function may also call exit unless the ARGP_NO_HELP flag
+    is set.  INPUT is a pointer to a value to be passed in to the parser.  */
+ extern error_t argp_parse (__const struct argp *__restrict __argp,
+-			   int __argc, char **__restrict __argv,
++			   int /*argc*/, char **__restrict /*argv*/,
+ 			   unsigned __flags, int *__restrict __arg_index,
+ 			   void *__restrict __input) __THROW;
+ extern error_t __argp_parse (__const struct argp *__restrict __argp,
+-			     int __argc, char **__restrict __argv,
++			     int /*argc*/, char **__restrict /*argv*/,
+ 			     unsigned __flags, int *__restrict __arg_index,
+ 			     void *__restrict __input) __THROW;
+ 

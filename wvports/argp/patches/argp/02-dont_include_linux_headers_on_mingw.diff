@@ -1,0 +1,19 @@
+2008-06-27  Lukasz Kosewski <lkosewsk@gmail.com>
+
+	* Mingw32 has no sysexits.h file to work with. 
+
+--- argp/argp-eexst.c.old	2008-06-28 02:51:47.000000000 +0000
++++ argp/argp-eexst.c	2008-06-28 02:53:37.000000000 +0000
+@@ -22,7 +22,12 @@
+ #include <config.h>
+ #endif
+ 
++#ifndef _WIN32
+ #include <sysexits.h>
++#else
++/* Stolen right from sysexits.h in Ubuntu 8.04 */
++#define EX_USAGE 64
++#endif
+ 
+ #include "argp.h"
+ 

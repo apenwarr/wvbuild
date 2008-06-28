@@ -73,7 +73,7 @@ wvdial: wvstreams
 	ln -sf ../wvver.h ../wvstreams/wvrules.mk $@
 	$(call make_subdir)
 
-wvstreams: wvports/zlib wvports/openssl wvports/xplc wvports/dbus
+wvstreams: wvports/zlib wvports/openssl wvports/xplc wvports/dbus wvports/argp
 ifeq ($(WV_BUILD_MINGW),1)
 	$(MAKE) -C wvstreams -f Makefile-win32
 else

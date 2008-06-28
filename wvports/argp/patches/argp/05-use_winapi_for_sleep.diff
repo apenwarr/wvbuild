@@ -1,0 +1,31 @@
+2008-06-28  Lukasz Kosewski <lkosewsk@gmail.com>
+
+	* There is no 'sleep(secs)' in win32; there is Sleep(millisecs)
+
+--- argp.old/argp-namefrob.h	2008-06-28 06:18:12.000000000 +0000
++++ argp/argp-namefrob.h	2008-06-28 06:19:11.000000000 +0000
+@@ -83,7 +83,13 @@
+ 
+ /* normal libc functions we call */
+ #undef __sleep
++#ifndef _WIN32
+ #define __sleep sleep
++#else
++#define WIN32_LEAN_AND_MEAN
++#include <windows.h>
++#define __sleep(x) Sleep(x * 1000)
++#endif
+ #undef __strcasecmp
+ #define __strcasecmp strcasecmp
+ #undef __vsnprintf
+--- argp.old/argp-parse.c	2008-06-28 06:12:02.000000000 +0000
++++ argp/argp-parse.c	2008-06-28 06:20:13.000000000 +0000
+@@ -149,7 +149,7 @@ argp_default_parser (int key, char *arg,
+       fprintf(state->err_stream, "%s: pid = %ld\n",
+ 	      state->name, (long) getpid());
+       while (_argp_hang-- > 0)
+-	__sleep (1);
++	__sleep(1);
+       break;
+ 
+     default:

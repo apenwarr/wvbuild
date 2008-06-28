@@ -7,7 +7,7 @@ define unpack
 endef
 
 define prepare
-	cd build/argp && ./configure
+	cd build/argp && ./configure --build=$$(sh ./config.guess) $(CONFIGHOST)
 endef
 
 ifeq ($(WV_BUILD_MINGW),1)
