@@ -27,7 +27,7 @@ else
 # Normal Unix build
 
 define prepare
-	cd build/openssl && ./config -DPURIFY -shared
+	cd build/openssl && ./config -DPURIFY -shared -g
 endef
 
 define compile
