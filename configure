@@ -7,15 +7,17 @@ cat >config.mk <<-EOF
 	WVMAKEFILE=Makefile
 EOF
 
-make wvports/xplc wvports/openssl wvports/dbus wvports/argp
+make wvports/xplc wvports/openssl wvports/dbus wvports/argp wvports/boost
 
 echo "--> Configuring WvStreams..."
 (cd wvstreams && make runconfigure)
-(cd wvstreams && ./configure \
+(set -x; cd wvstreams && \
+	./configure \
 		--enable-debug \
 		--disable-optimization \
 		--with-xplc=../wvports/xplc/build/xplc \
 		--with-openssl=../wvports/openssl/build/openssl \
 		--with-dbus=../wvports/dbus/build/dbus \
+		CPPFLAGS="-I../wvports/boost/build/boost" \
 		"$@") || exit $?
 
