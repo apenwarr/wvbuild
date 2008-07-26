@@ -1,5 +1,7 @@
 #!/bin/sh -x
 
+set -e
+
 test -e wvstreams/Makefile || ./get-git-modules
 
 rm -f config.mk
@@ -10,7 +12,8 @@ EOF
 make wvports/xplc wvports/openssl wvports/dbus wvports/argp wvports/boost
 
 echo "--> Configuring WvStreams..."
-(cd wvstreams && make runconfigure)
+(cd wvstreams; [ ! -e include/wvautoconf.h.in ] && autoheader; \
+		[ ! -e ./configure ] && autoconf)
 (set -x; cd wvstreams && \
 	./configure \
 		--enable-debug \
