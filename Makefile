@@ -75,7 +75,7 @@ wvdial: wvstreams
 
 wvstreams: wvports/zlib wvports/openssl wvports/xplc wvports/dbus wvports/argp
 ifeq ($(WV_BUILD_MINGW),1)
-	$(MAKE) -C wvstreams -f Makefile-win32
+	$(MAKE) -C wvstreams
 else
 	$(call make_subdir)
 endif
