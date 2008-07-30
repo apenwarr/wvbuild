@@ -74,11 +74,7 @@ wvdial: wvstreams
 	$(call make_subdir)
 
 wvstreams: wvports/zlib wvports/openssl wvports/xplc wvports/dbus wvports/argp
-ifeq ($(WV_BUILD_MINGW),1)
-	$(MAKE) -C wvstreams
-else
 	$(call make_subdir)
-endif
 
 wvsync: wvstreams
 	$(error I don't know (yet!) how to build $@...)
