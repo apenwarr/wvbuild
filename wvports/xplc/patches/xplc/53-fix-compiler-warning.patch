@@ -1,0 +1,18 @@
+2008-08-23  Peter McCurdy <pmccurdy@skeptopotamus>
+
+	* Fix a compiler warning.  Gcc complains that the computed
+          expression is not used; it's right, we just want the
+          side-effects of a ++.  Cast it to void.
+
+diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' --exclude '*.l[oa]' --exclude '*.lai' --exclude '*.o' --exclude .deps --exclude .libs ../.build_orig/xplc/uuid/bin/uuidgen.c xplc/uuid/bin/uuidgen.c
+--- ../.build_orig/xplc/uuid/bin/uuidgen.c	2008-08-23 15:49:40.000000000 -0400
++++ xplc/uuid/bin/uuidgen.c	2008-08-23 15:40:25.000000000 -0400
+@@ -185,7 +185,7 @@ int parse_conf(int argc, char** argv, st
+     int state = PARSE_UNKNOWN;
+     /* Iterate through the option and decide what to do with it */
+     char* c;
+-    for(c = argv[i]; c; c && ++c) {
++    for(c = argv[i]; c; (void)(c && ++c)) {
+       switch(state) {
+       case PARSE_INVALID:
+         fprintf(stderr,
