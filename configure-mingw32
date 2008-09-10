@@ -15,10 +15,11 @@ cat >config.mk <<-EOF
 	export CC AR RANLIB
 EOF
 
-make wvports/zlib wvports/xplc wvports/openssl wvports/dbus wvports/boost wvports/argp
+make wvports/zlib wvports/xplc wvports/openssl wvports/dbus wvports/boost wvports/argp wvports/win32api
 
 echo "--> Configuring WvStreams..."
-(cd wvstreams && make -f Makefile-win32 runconfigure)
+(cd wvstreams; [ ! -e include/wvautoconf.h.in ] && autoheader; \
+		[ ! -e ./configure ] && autoconf)
 (set -x; cd wvstreams && \
 	XCPPFLAGS="-I../wvports/boost/build/boost" \
 	./configure-mingw32 \
