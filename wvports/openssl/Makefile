@@ -6,6 +6,11 @@ define unpack
 	ln -s openssl-0.9.8g $(BUILDDIR)/openssl
 endef
 
+# for 'make diff'
+EXCLUDE=opensslconf.h buildinf.h \
+	*.s *.bak *.0 *.so *.so.* *.a *.pc \
+	openssl Makefile *test
+
 
 ifeq ($(WV_BUILD_MINGW),1)
 

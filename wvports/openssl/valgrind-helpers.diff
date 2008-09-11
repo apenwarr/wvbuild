@@ -1,0 +1,119 @@
+2008-09-10  Avery Pennarun <apenwarr@harmony>
+
+	* Add a bunch of write() statements that irritate valgrind right
+	  away if you try to do something with uninitialized variable. 
+	  Without these, uninitialized data can spread all over the place
+	  before you try to *use* it, which is the only time valgrind
+	  notices, and that makes it really hard to actually debug the
+	  problem.
+
+diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' --exclude '*.l[oa]' --exclude '*.lai' --exclude '*.o' --exclude .deps --exclude .libs --exclude opensslconf.h --exclude buildinf.h --exclude '*.s' --exclude '*.bak' --exclude '*.0' --exclude '*.so' --exclude '*.so.*' --exclude '*.a' --exclude '*.pc' --exclude openssl --exclude Makefile --exclude '*test' ../.build_orig/openssl/crypto/bn/bn_gcd.c openssl/crypto/bn/bn_gcd.c
+--- ../.build_orig/openssl/crypto/bn/bn_gcd.c	2007-06-11 12:33:50.000000000 -0400
++++ openssl/crypto/bn/bn_gcd.c	2008-09-10 21:02:03.000000000 -0400
+@@ -212,6 +212,8 @@ BIGNUM *BN_mod_inverse(BIGNUM *in,
+ 	BIGNUM *ret=NULL;
+ 	int sign;
+ 
++	write(222, &a->flags, sizeof(a->flags));
++	write(222, &n->flags, sizeof(n->flags));
+ 	if ((BN_get_flags(a, BN_FLG_CONSTTIME) != 0) || (BN_get_flags(n, BN_FLG_CONSTTIME) != 0))
+ 		{
+ 		return BN_mod_inverse_no_branch(in, a, n, ctx);
+diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' --exclude '*.l[oa]' --exclude '*.lai' --exclude '*.o' --exclude .deps --exclude .libs --exclude opensslconf.h --exclude buildinf.h --exclude '*.s' --exclude '*.bak' --exclude '*.0' --exclude '*.so' --exclude '*.so.*' --exclude '*.a' --exclude '*.pc' --exclude openssl --exclude Makefile --exclude '*test' ../.build_orig/openssl/crypto/bn/bn_lib.c openssl/crypto/bn/bn_lib.c
+--- ../.build_orig/openssl/crypto/bn/bn_lib.c	2008-09-10 21:17:49.000000000 -0400
++++ openssl/crypto/bn/bn_lib.c	2008-09-10 20:42:57.000000000 -0400
+@@ -340,6 +340,7 @@ static BN_ULONG *bn_expand_internal(cons
+ 		BNerr(BN_F_BN_EXPAND_INTERNAL,ERR_R_MALLOC_FAILURE);
+ 		return(NULL);
+ 		}
++
+ #if 1
+ 	B=b->d;
+ 	/* Check if the previous number needs to be copied */
+@@ -605,6 +606,9 @@ BIGNUM *BN_bin2bn(const unsigned char *s
+ 	if (ret == NULL)
+ 		ret = bn = BN_new();
+ 	if (ret == NULL) return(NULL);
++	write(881, &ret->top, sizeof(ret->top));
++	if (ret->top > 0)
++            write(882, &ret->d[ret->top-1], sizeof(ret->d[ret->top-1]));
+ 	bn_check_top(ret);
+ 	l=0;
+ 	n=len;
+@@ -624,6 +628,7 @@ BIGNUM *BN_bin2bn(const unsigned char *s
+ 	ret->neg=0;
+ 	while (n--)
+ 		{
++		write(883, s, sizeof(*s));
+ 		l=(l<<8L)| *(s++);
+ 		if (m-- == 0)
+ 			{
+@@ -632,6 +637,8 @@ BIGNUM *BN_bin2bn(const unsigned char *s
+ 			m=BN_BYTES-1;
+ 			}
+ 		}
++	if (ret->top > 0)
++            write(882, &ret->d[ret->top-1], sizeof(ret->d[ret->top-1]));
+ 	/* need to call this due to clear byte at top if avoiding
+ 	 * having the top bit set (-ve number) */
+ 	bn_correct_top(ret);
+diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' --exclude '*.l[oa]' --exclude '*.lai' --exclude '*.o' --exclude .deps --exclude .libs --exclude opensslconf.h --exclude buildinf.h --exclude '*.s' --exclude '*.bak' --exclude '*.0' --exclude '*.so' --exclude '*.so.*' --exclude '*.a' --exclude '*.pc' --exclude openssl --exclude Makefile --exclude '*test' ../.build_orig/openssl/crypto/bn/bn_rand.c openssl/crypto/bn/bn_rand.c
+--- ../.build_orig/openssl/crypto/bn/bn_rand.c	2005-04-26 14:53:13.000000000 -0400
++++ openssl/crypto/bn/bn_rand.c	2008-09-10 20:45:04.000000000 -0400
+@@ -152,7 +152,7 @@ static int bnrand(int pseudorand, BIGNUM
+ 		if (RAND_bytes(buf, bytes) <= 0)
+ 			goto err;
+ 		}
+-
++        write(772, buf, bytes);
+ #if 1
+ 	if (pseudorand == 2)
+ 		{
+diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' --exclude '*.l[oa]' --exclude '*.lai' --exclude '*.o' --exclude .deps --exclude .libs --exclude opensslconf.h --exclude buildinf.h --exclude '*.s' --exclude '*.bak' --exclude '*.0' --exclude '*.so' --exclude '*.so.*' --exclude '*.a' --exclude '*.pc' --exclude openssl --exclude Makefile --exclude '*test' ../.build_orig/openssl/crypto/bn/bn_word.c openssl/crypto/bn/bn_word.c
+--- ../.build_orig/openssl/crypto/bn/bn_word.c	2005-07-25 18:55:47.000000000 -0400
++++ openssl/crypto/bn/bn_word.c	2008-09-10 20:27:05.000000000 -0400
+@@ -80,6 +80,11 @@ BN_ULONG BN_mod_word(const BIGNUM *a, BN
+ 		ret=((ret<<BN_BITS4)|((a->d[i]>>BN_BITS4)&BN_MASK2l))%w;
+ 		ret=((ret<<BN_BITS4)|(a->d[i]&BN_MASK2l))%w;
+ #else
++                write(991, &a, sizeof(a));
++                write(992, &a->top, sizeof(a->top));
++                write(993, &w, sizeof(w));
++                write(994, &a->d[i], sizeof(a->d[i]));
++                
+ 		ret=(BN_ULLONG)(((ret<<(BN_ULLONG)BN_BITS2)|a->d[i])%
+ 			(BN_ULLONG)w);
+ #endif
+diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' --exclude '*.l[oa]' --exclude '*.lai' --exclude '*.o' --exclude .deps --exclude .libs --exclude opensslconf.h --exclude buildinf.h --exclude '*.s' --exclude '*.bak' --exclude '*.0' --exclude '*.so' --exclude '*.so.*' --exclude '*.a' --exclude '*.pc' --exclude openssl --exclude Makefile --exclude '*test' ../.build_orig/openssl/crypto/rand/md_rand.c openssl/crypto/rand/md_rand.c
+--- ../.build_orig/openssl/crypto/rand/md_rand.c	2007-01-21 08:16:36.000000000 -0500
++++ openssl/crypto/rand/md_rand.c	2008-09-10 20:52:37.000000000 -0400
+@@ -434,6 +434,7 @@ static int ssleay_rand_bytes(unsigned ch
+ 	st_num=state_num;
+ 	md_c[0] = md_count[0];
+ 	md_c[1] = md_count[1];
++	write(660, md, sizeof md);
+ 	memcpy(local_md, md, sizeof md);
+ 
+ 	state_index+=num_ceil;
+@@ -463,7 +464,9 @@ static int ssleay_rand_bytes(unsigned ch
+ 			}
+ #endif
+ 		MD_Update(&m,local_md,MD_DIGEST_LENGTH);
++		write(661, local_md, MD_DIGEST_LENGTH);
+ 		MD_Update(&m,(unsigned char *)&(md_c[0]),sizeof(md_c));
++		write(662, (unsigned char *)&(md_c[0]), sizeof(md_c));
+ #ifndef PURIFY
+ 		MD_Update(&m,buf,j); /* purify complains */
+ #endif
+diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' --exclude '*.l[oa]' --exclude '*.lai' --exclude '*.o' --exclude .deps --exclude .libs --exclude opensslconf.h --exclude buildinf.h --exclude '*.s' --exclude '*.bak' --exclude '*.0' --exclude '*.so' --exclude '*.so.*' --exclude '*.a' --exclude '*.pc' --exclude openssl --exclude Makefile --exclude '*test' ../.build_orig/openssl/crypto/rand/rand_lcl.h openssl/crypto/rand/rand_lcl.h
+--- ../.build_orig/openssl/crypto/rand/rand_lcl.h	2001-10-25 04:53:54.000000000 -0400
++++ openssl/crypto/rand/rand_lcl.h	2008-09-10 20:56:57.000000000 -0400
+@@ -130,7 +130,7 @@
+ #endif
+ 
+ #include <openssl/evp.h>
+-#define MD_Update(a,b,c)	EVP_DigestUpdate(a,b,c)
++#define MD_Update(a,b,c)	do { write(111, b, c); EVP_DigestUpdate(a,b,c); } while (0)
+ #define	MD_Final(a,b)		EVP_DigestFinal_ex(a,b,NULL)
+ #if defined(USE_MD5_RAND)
+ #include <openssl/md5.h>
