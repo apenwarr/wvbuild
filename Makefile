@@ -74,7 +74,7 @@ wvdial: wvstreams
 	$(call make_subdir)
 
 ifeq ($(WV_BUILD_MINGW),1)
-wvstreams: wvports/argp wvports/win32api
+wvstreams: wvports/win32api
 endif
 wvstreams: wvports/zlib wvports/openssl wvports/xplc wvports/dbus
 	$(call make_subdir)

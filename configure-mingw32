@@ -15,7 +15,7 @@ cat >config.mk <<-EOF
 	export CC AR RANLIB
 EOF
 
-make wvports/zlib wvports/xplc wvports/openssl wvports/dbus wvports/boost wvports/argp wvports/win32api
+make wvports/zlib wvports/xplc wvports/openssl wvports/dbus wvports/boost wvports/win32api
 
 echo "--> Configuring WvStreams..."
 (cd wvstreams; [ ! -e include/wvautoconf.h.in ] && autoheader; \

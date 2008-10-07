@@ -9,7 +9,7 @@ cat >config.mk <<-EOF
 	WVMAKEFILE=Makefile
 EOF
 
-make wvports/xplc wvports/openssl wvports/dbus wvports/argp wvports/boost
+make wvports/xplc wvports/openssl wvports/dbus wvports/boost
 
 echo "--> Configuring WvStreams..."
 (cd wvstreams; [ ! -e include/wvautoconf.h.in ] && autoheader; \
