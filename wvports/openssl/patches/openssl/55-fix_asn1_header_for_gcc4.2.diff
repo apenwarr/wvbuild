@@ -1,0 +1,32 @@
+2008-10-15  Lukasz Kosewski <lkosewsk@gmail.com>
+
+	* OpenSSL does crazy stuff with macros to attempt to enforce type-safety
+	  on various parameters the user passes in.  Unfortunately, due to
+	  macro reuse, these macros often end up (after enforcing that the type
+	  you passed in is actually what you want) casting the result to a void*
+	  since this would allow a bunch of functions expecting other types to
+	  use it.... in gcc < 4.2.  gcc 4.2 won't allow void * to be cast
+	  non-explicitly to another type, and so the particular macro below
+	  fails (we use it in wvocsp.cc) compilation.  Fixed up this particular
+	  instance by adding a new macro that, instead of casting to a void *,
+	  casts to the desired type.
+--- openssl.old/crypto/asn1/asn1.h	2008-10-15 21:24:58.000000000 +0000
++++ openssl/crypto/asn1/asn1.h	2008-10-15 21:27:19.000000000 +0000
+@@ -330,6 +330,8 @@ typedef struct ASN1_VALUE_st ASN1_VALUE;
+     ((void *(*)(void)) (1 ? xnew : ((type *(*)(void))0)))
+ #define CHECKED_PTR_OF(type, p) \
+     ((void*) (1 ? p : (type*)0))
++#define CHECKED_PTR_OF_WITH_RETURN_TYPE(type, p, rtype) \
++    ((rtype*) (1 ? p : (type*)0))
+ #define CHECKED_PPTR_OF(type, p) \
+     ((void**) (1 ? p : (type**)0))
+ 
+@@ -969,7 +971,7 @@ int ASN1_i2d_bio(i2d_of_void *i2d,BIO *o
+ #define ASN1_i2d_bio_of(type,i2d,out,x) \
+     (ASN1_i2d_bio(CHECKED_I2D_OF(type, i2d), \
+ 		  out, \
+-		  CHECKED_PTR_OF(type, x)))
++		  CHECKED_PTR_OF_WITH_RETURN_TYPE(type, x, unsigned char)))
+ 
+ #define ASN1_i2d_bio_of_const(type,i2d,out,x) \
+     (ASN1_i2d_bio(CHECKED_I2D_OF(const type, i2d), \
