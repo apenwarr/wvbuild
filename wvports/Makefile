@@ -1,5 +1,5 @@
 
-SUBDIRS=zlib openssl dbus w32api
+SUBDIRS=zlib openssl dbus win32api
 
 default: all
 
