@@ -9,7 +9,7 @@ cat >config.mk <<-EOF
 	WVMAKEFILE=Makefile
 EOF
 
-make wvports/xplc wvports/openssl wvports/dbus wvports/boost
+make wvports/openssl wvports/dbus wvports/boost
 
 echo "--> Configuring WvStreams..."
 (cd wvstreams; [ ! -e include/wvautoconf.h.in ] && autoheader; \
@@ -18,7 +18,6 @@ echo "--> Configuring WvStreams..."
 	./configure \
 		--enable-debug \
 		--disable-optimization \
-		--with-xplc=../wvports/xplc/build/xplc \
 		--with-openssl=../wvports/openssl/build/openssl \
 		--with-dbus=../wvports/dbus/build/dbus \
 		CPPFLAGS="-I../wvports/boost/build/boost" \
