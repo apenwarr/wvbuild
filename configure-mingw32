@@ -15,7 +15,7 @@ cat >config.mk <<-EOF
 	export CC AR RANLIB
 EOF
 
-make wvports/zlib wvports/xplc wvports/openssl wvports/dbus wvports/boost wvports/win32api
+make wvports/zlib wvports/openssl wvports/dbus wvports/boost wvports/win32api
 
 echo "--> Configuring WvStreams..."
 (cd wvstreams; [ ! -e include/wvautoconf.h.in ] && autoheader; \
@@ -25,7 +25,6 @@ echo "--> Configuring WvStreams..."
 	./configure-mingw32 \
 		--disable-debug \
 		--disable-optimization \
-		--with-xplc=../wvports/xplc/build/xplc \
 		--with-openssl=../wvports/openssl/build/openssl \
 		--with-zlib=../wvports/zlib/build/zlib \
 		--with-dbus=../wvports/dbus/build/dbus \

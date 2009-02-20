@@ -1,5 +1,5 @@
 
-SUBDIRS=zlib xplc openssl dbus
+SUBDIRS=zlib openssl dbus win32api
 
 default: all
 

@@ -9,11 +9,6 @@ if [ "x$1" != "x" ]; then
   PROGRAMS="$@"
 fi
 
-# Make sure xplc is put inside our distribution
-if ! test -L "$CURDIR/wvstreams/.xplc"; then
-    ln -s "$CURDIR/wvports/xplc" "$CURDIR/wvstreams/.xplc"
-fi
-
 if [ "x$RELEASE" == "x" ]; then
   export PKGSNAPSHOT=1
 fi
@@ -35,9 +30,3 @@ for i in $PROGRAMS; do
     ln -f "$i/../build/$FILES.tar.gz" snapshots/
     ln -f "$i/../build/$FILES.tar.gz" "debian-snapshots/$DEBFILES.orig.tar.gz"
 done
-
-# Remove xplc from our actual copy of WvStreams now that
-# we're done snapshotting
-rm -rf wvstreams/xplc
-rm -f wvstreams/.xplc
-

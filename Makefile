@@ -1,5 +1,5 @@
 # This top-level makefile will automatically build a copy of wvstreams using
-# the versions of xplc and openssl in wvports.
+# the versions openssl, etc. in wvports.
 
 include config.mk
 
@@ -31,7 +31,7 @@ endef
 include wvports/subdir.mk
 
 export LD_LIBRARY_PATH:=$(PWD)/lib:$(LD_LIBRARY_PATH)
-export PKG_CONFIG_PATH:=$(PWD)/wvstreams/pkgconfig:$(PWD)/wvports/xplc/build/xplc/dist:$(PKG_CONFIG_PATH)
+export PKG_CONFIG_PATH:=$(PWD)/wvstreams/pkgconfig:$(PKG_CONFIG_PATH)
 export WVSTREAMS:=$(PWD)/wvstreams
 
 clean: $(addsuffix /clean,$(SUBDIRS))
@@ -76,7 +76,7 @@ wvdial: wvstreams
 ifeq ($(WV_BUILD_MINGW),1)
 wvstreams: wvports/win32api
 endif
-wvstreams: wvports/zlib wvports/openssl wvports/xplc wvports/dbus
+wvstreams: wvports/zlib wvports/openssl wvports/dbus
 	$(call make_subdir)
 
 wvsync: wvstreams
@@ -85,9 +85,6 @@ wvsync: wvstreams
 wvtftp: wvstreams
 	cd $@ && cmake .
 	$(call make_subdir)
-
-xplcidl:
-	$(error I don't know (yet!) how to build $@...)
 
 zen:
 	$(error I don't know (yet!) how to build $@...)
