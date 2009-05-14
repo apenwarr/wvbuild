@@ -3,7 +3,7 @@ include ../../config.mk
 include ../wvports.mk
 
 define unpack
-	ln -s dbus-1.1.2 $(BUILDDIR)/dbus
+	ln -s dbus-1.2.14 $(BUILDDIR)/dbus
 endef
 
 define prepare
