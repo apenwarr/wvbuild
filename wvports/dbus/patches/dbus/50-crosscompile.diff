@@ -22,21 +22,6 @@ diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej'
  
  if test x$enable_abstract_sockets = xyes; then
      if test x$ac_cv_have_abstract_sockets = xno; then
-@@ -26107,10 +26108,10 @@ else
-         elif $have_libxml ; then
-                 with_xml=libxml
-                 dbus_use_libxml=true
--        else
--                { { echo "$as_me:$LINENO: error: No XML library found, check config.log for failed attempts" >&5
--echo "$as_me: error: No XML library found, check config.log for failed attempts" >&2;}
--   { (exit 1); exit 1; }; }
-+#        else
-+#                { { echo "$as_me:$LINENO: error: No XML library found, check config.log for failed attempts" >&5
-+#echo "$as_me: error: No XML library found, check config.log for failed attempts" >&2;}
-+#   { (exit 1); exit 1; }; }
-         fi
- fi
- 
 diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' ../.build_orig/dbus/Makefile.in dbus/Makefile.in
 --- ../.build_orig/dbus/Makefile.in	2007-07-27 16:57:25.000000000 -0400
 +++ dbus/Makefile.in	2007-08-17 15:18:56.000000000 -0400
