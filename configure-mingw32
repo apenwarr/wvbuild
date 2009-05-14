@@ -18,8 +18,7 @@ EOF
 make wvports/zlib wvports/openssl wvports/dbus wvports/boost wvports/win32api
 
 echo "--> Configuring WvStreams..."
-(cd wvstreams; [ ! -e include/wvautoconf.h.in ] && autoheader; \
-		[ ! -e ./configure ] && autoconf)
+(cd wvstreams && ./autogen.sh)
 (set -x; cd wvstreams && \
 	XCPPFLAGS="-I../wvports/boost/build/boost" \
 	./configure-mingw32 \

@@ -12,8 +12,7 @@ EOF
 make wvports/openssl wvports/dbus wvports/boost
 
 echo "--> Configuring WvStreams..."
-(cd wvstreams; [ ! -e include/wvautoconf.h.in ] && autoheader; \
-		[ ! -e ./configure ] && autoconf)
+(cd wvstreams && ./autogen.sh)
 (set -x; cd wvstreams && \
 	./configure \
 		--enable-debug \
