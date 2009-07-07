@@ -2,8 +2,6 @@
 
 set -e
 
-test -e wvstreams/Makefile || ./get-git-modules
-
 rm -f config.mk
 cat >config.mk <<-EOF
 	CONFIGHOST=--host=i586-mingw32msvc

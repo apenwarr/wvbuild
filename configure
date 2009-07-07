@@ -2,8 +2,6 @@
 
 set -e
 
-test -e wvstreams/Makefile || ./get-git-modules
-
 rm -f config.mk
 cat >config.mk <<-EOF
 	WVMAKEFILE=Makefile
