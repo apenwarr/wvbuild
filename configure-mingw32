@@ -1,0 +1,16 @@
+#!/bin/bash
+PORTS=$PWD/../wvports
+./configure \
+	--build=$(./config.guess) \
+	--host=i586-mingw32msvc \
+	--enable-exceptions \
+	CPPFLAGS="-mno-cygwin \
+		-I$PORTS/zlib/build/zlib \
+		-I$PORTS/openssl/build/openssl/include $XCPPFLAGS \
+		-I$PORTS/win32api/build/w32api/include" \
+	LDFLAGS="\
+		-L$PORTS/zlib/build/zlib \
+		-L$PORTS/openssl/build/openssl \
+		-L$PORTS/win32api/build/w32api/lib" \
+	LIBS="-lwsock32 -lgdi32" \
+	$@
