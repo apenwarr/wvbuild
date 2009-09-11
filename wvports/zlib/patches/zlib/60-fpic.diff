@@ -1,0 +1,16 @@
+2009-09-10   <apenwarr@gmail.com>
+
+	* Always use -fPIC even when building static library.  We might be
+	  about to link it wholesale into a .so file, which fails on x86_64.
+
+diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' --exclude '*.l[oa]' --exclude '*.lai' --exclude '*.o' --exclude .deps --exclude .libs ../.build_orig/zlib/Makefile.in zlib/Makefile.in
+--- ../.build_orig/zlib/Makefile.in	2009-09-10 20:28:13.000000000 -0400
++++ zlib/Makefile.in	2009-09-10 20:27:33.000000000 -0400
+@@ -24,6 +24,7 @@ CFLAGS=-O
+ #CFLAGS=-O3 -Wall -Wwrite-strings -Wpointer-arith -Wconversion \
+ #           -Wstrict-prototypes -Wmissing-prototypes
+ 
++CFLAGS+=-fPIC
+ LDFLAGS=libz.a
+ LDSHARED=$(CC)
+ CPP=$(CC) -E
