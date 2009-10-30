@@ -22,8 +22,8 @@ echo "--> Configuring WvStreams..."
 	./configure-mingw32 \
 		--disable-debug \
 		--disable-optimization \
-		--with-openssl=../wvports/openssl/build/openssl \
-		--with-zlib=../wvports/zlib/build/zlib \
-		--with-dbus=../wvports/dbus/build/dbus \
+		--with-openssl=$P/wvports/openssl/build/openssl \
+		--with-zlib=$P/wvports/zlib/build/zlib \
+		--with-dbus=$P/wvports/dbus/build/dbus \
 		"$@") || exit $?
 
