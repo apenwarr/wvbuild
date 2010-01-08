@@ -2,8 +2,13 @@
 
 set -e
 
+if [ "x$MYHOST" = x ]; then
+    MYHOST=wvstreamsobj
+fi
+
 rm -f config.mk
 cat >config.mk <<-EOF
+	MYHOST=$MYHOST
 	WVMAKEFILE=Makefile
 EOF
 
