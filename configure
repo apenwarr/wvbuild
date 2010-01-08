@@ -16,8 +16,8 @@ make wvports/openssl wvports/dbus wvports/boost
 
 echo "--> Configuring WvStreams..."
 (cd wvstreams && ./autogen.sh)
-(set -x; cd wvstreams && \
-	./configure \
+(set -x; cd "$MYHOST" && \
+	../wvstreams/configure \
 		--enable-debug \
 		--disable-optimization \
 		--with-openssl=../wvports/openssl/build/openssl \
