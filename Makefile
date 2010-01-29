@@ -4,7 +4,8 @@
 include config.mk
 
 #SUBDIRS=retchmail wvdial wvstreams wvtftp
-SUBDIRS=wvstreams
+WVSTREAMSDIR=$(if $(MYHOST),$(MYHOST),wvstreams)
+SUBDIRS=$(WVSTREAMSDIR)
 
 .PHONY: default clean mrclean check FORCE $(SUBDIRS)
 default: $(SUBDIRS)
@@ -31,8 +32,8 @@ endef
 include wvports/subdir.mk
 
 export LD_LIBRARY_PATH:=$(PWD)/lib:$(LD_LIBRARY_PATH)
-export PKG_CONFIG_PATH:=$(PWD)/wvstreams/pkgconfig:$(PKG_CONFIG_PATH)
-export WVSTREAMS:=$(PWD)/wvstreams
+#export PKG_CONFIG_PATH:=$(PWD)/wvstreams/pkgconfig:$(PKG_CONFIG_PATH)
+#export WVSTREAMS:=$(PWD)/wvstreams
 
 clean: $(addsuffix /clean,$(SUBDIRS))
 
@@ -40,9 +41,9 @@ clean: $(addsuffix /clean,$(SUBDIRS))
 	$(call make_subdir,$*,clean)
 
 mrclean: clean wvports/clean
-	$(call make_subdir,wvstreams,realclean)
+	$(call make_subdir,$(WVSTREAMSDIR),realclean)
 
-check: $(addsuffix /check,wvstreams)
+check: $(addsuffix /check,$(WVSTREAMSDIR))
 
 %/check: % FORCE
 	$(call make_subdir,$*,test)
@@ -53,14 +54,14 @@ nitlog planit:
 replytolist:
 	$(error I don't think I'll ever be smart enough to build this.)
 
-retchmail: wvstreams
+retchmail: $(WVSTREAMSDIR)
 	ln -sf ../wvver.h ../wvstreams/wvrules.mk $@
 	$(call make_subdir)
 
 schedulator:
 	$(error I don't know (yet!) how to build $@...)
 
-twc: wvstreams
+twc: $(WVSTREAMSDIR)
 	$(error I don't know (yet!) how to build $@...)
 
 unikonf:
@@ -69,20 +70,20 @@ unikonf:
 unity:
 	$(error I don't know (yet!) how to build $@...)
 
-wvdial: wvstreams
+wvdial: $(WVSTREAMSDIR)
 	ln -sf ../wvver.h ../wvstreams/wvrules.mk $@
 	$(call make_subdir)
 
 ifeq ($(WV_BUILD_MINGW),1)
-wvstreams: wvports/win32api
+$(WVSTREAMSDIR): wvports/win32api
 endif
-wvstreams: wvports/zlib wvports/openssl wvports/dbus
+$(WVSTREAMSDIR): wvports/zlib wvports/openssl wvports/dbus
 	$(call make_subdir)
 
-wvsync: wvstreams
+wvsync: $(WVSTREAMSDIR)
 	$(error I don't know (yet!) how to build $@...)
 
-wvtftp: wvstreams
+wvtftp: $(WVSTREAMSDIR)
 	cd $@ && cmake .
 	$(call make_subdir)
 

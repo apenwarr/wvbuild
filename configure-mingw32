@@ -1,14 +1,16 @@
 #!/bin/sh -x
+MYHOST=i586-mingw32msvc
 export P="$PWD"
 set -e
 
 rm -f config.mk
 cat >config.mk <<-EOF
-	CONFIGHOST=--host=i586-mingw32msvc
-	CC=i586-mingw32msvc-gcc
-	AR=i586-mingw32msvc-ar
+	MYHOST=$MYHOST
+	CONFIGHOST=--host=$MYHOST
+	CC=$MYHOST-gcc
+	AR=$MYHOST-ar
 	ARRC=\$(AR) rc
-	RANLIB=i586-mingw32msvc-ranlib
+	RANLIB=$MYHOST-ranlib
 	WV_BUILD_MINGW=1
 	export CC AR RANLIB
 EOF
@@ -16,14 +18,15 @@ EOF
 make wvports/zlib wvports/openssl wvports/dbus wvports/boost wvports/win32api
 
 echo "--> Configuring WvStreams..."
+mkdir -p "$MYHOST"
 (cd wvstreams && ./autogen.sh)
-(set -x; cd wvstreams && \
+(set -x; cd "$MYHOST" && \
 	XCPPFLAGS="-I$P/wvports/boost/build/boost" \
-	./configure-mingw32 \
+	../wvstreams/configure-mingw32 \
 		--disable-debug \
 		--disable-optimization \
-		--with-openssl=../wvports/openssl/build/openssl \
-		--with-zlib=../wvports/zlib/build/zlib \
-		--with-dbus=../wvports/dbus/build/dbus \
+		--with-openssl=$P/wvports/openssl/build/openssl \
+		--with-zlib=$P/wvports/zlib/build/zlib \
+		--with-dbus=$P/wvports/dbus/build/dbus \
 		"$@") || exit $?
 
