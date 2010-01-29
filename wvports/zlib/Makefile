@@ -11,6 +11,6 @@ define prepare
 endef
 
 define compile
-	make -C $(BUILDDIR)/zlib
+	$(MAKE) -C $(BUILDDIR)/zlib
 endef
 

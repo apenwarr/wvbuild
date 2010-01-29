@@ -21,7 +21,7 @@ define prepare
 endef
 
 define compile
-	make -C build/openssl \
+	$(MAKE) -C build/openssl \
 		CC="$(CC)" RANLIB="$(RANLIB)" AR="$(ARRC)" \
 		CFLAG="-DL_ENDIAN -DDSO_WIN32 -O3 -march=i486 -Wall -DBN_ASM -DMD5_ASM -DSHA1_ASM -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_NO_CAMELLIA -DOPENSSL_NO_RC5 -DOPENSSL_NO_MDC2 -DOPENSSL_NO_KRB5 -DOPENSSL_NO_DYNAMIC_ENGINE -DNO_WINDOWS_BRAINDEATH"
 endef
@@ -36,7 +36,7 @@ define prepare
 endef
 
 define compile
-	make -C build/openssl
+	$(MAKE) -C build/openssl
 endef
 
 
