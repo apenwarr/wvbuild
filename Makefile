@@ -26,7 +26,7 @@ endif
 define make_subdir
 	@echo
 	@echo "--> Making $(if $2,$2 in )$(if $1,$1,$@)..."
-	@+$(MAKE) -C $(if $1,$1,$@) --no-print-directory $3 $2
+	@+$(MAKE) -C $(if $1,$1,$@) --no-print-directory $2
 endef
 
 include wvports/subdir.mk
