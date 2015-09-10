@@ -1,17 +1,26 @@
-2007-10-07  Avery Pennarun <apenwarr@insight>
+From 0d862a8607034d6a273419f329518d1542b8bac2 Mon Sep 17 00:00:00 2001
+From: Eduardo Bacchi Kienetz <eduardo@kienetz.com>
+Date: Wed, 9 Sep 2015 18:44:19 -0600
+Subject: [PATCH 5/5] Importing wvbuild environment with current version of
+ wvstreams.
 
-	* Build the library with a -wvports extension to avoid conflicts
-	  with system-wide openssl libraries.
+Based on Avery's commit https://github.com/apenwarr/wvbuild/commit/02dcbdd56a2d15bb82bf5fe815d15d1c0a4760be for openssl-0.9.8g.
+---
+ crypto/opensslv.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' --exclude '*.l[oa]' --exclude '*.lai' --exclude '*.o' --exclude .deps --exclude .libs ../.build_orig/openssl/crypto/opensslv.h openssl/crypto/opensslv.h
---- ../.build_orig/openssl/crypto/opensslv.h	2007-02-23 07:38:11.000000000 -0500
-+++ openssl/crypto/opensslv.h	2007-10-07 01:45:15.000000000 -0400
-@@ -83,7 +83,7 @@
+diff --git a/crypto/opensslv.h b/crypto/opensslv.h
+index 058711b..dee06b0 100644
+--- a/crypto/opensslv.h
++++ b/crypto/opensslv.h
+@@ -84,6 +84,6 @@
   * should only keep the versions that are binary compatible with the current.
   */
- #define SHLIB_VERSION_HISTORY ""
--#define SHLIB_VERSION_NUMBER "0.9.8"
-+#define SHLIB_VERSION_NUMBER "42.42-wvports"
+ # define SHLIB_VERSION_HISTORY ""
+-# define SHLIB_VERSION_NUMBER "0.9.8"
++# define SHLIB_VERSION_NUMBER "42.43-wvports"
  
- 
- #endif /* HEADER_OPENSSLV_H */
+ #endif                          /* HEADER_OPENSSLV_H */
+-- 
+2.4.3
+

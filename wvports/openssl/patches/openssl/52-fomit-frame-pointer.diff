@@ -1,11 +1,19 @@
-2008-06-27  Avery Pennarun <averyp@averyp-server>
+From 7b3fb15aa440913f079ca54ad1249b0970bf4e9b Mon Sep 17 00:00:00 2001
+From: Eduardo Bacchi Kienetz <eduardo@kienetz.com>
+Date: Wed, 9 Sep 2015 18:36:27 -0600
+Subject: [PATCH 3/5] openssl build: don't use -fomit-frame-pointer, which just
+ makes debugging suck.
 
-	* Remove -fomit-frame-pointer, which inhibits debugging.
+Based on Avery's commit https://github.com/apenwarr/wvbuild/commit/0d87f70836094dabe610ae00ca411e1a5cf02d64 for openssl 0.9.8g.
+---
+ Configure | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' --exclude '*.l[oa]' --exclude '*.lai' --exclude '*.o' --exclude .deps --exclude .libs ../.build_orig/openssl/Configure openssl/Configure
---- ../.build_orig/openssl/Configure	2007-09-16 08:24:17.000000000 -0400
-+++ openssl/Configure	2008-06-27 18:55:00.000000000 -0400
-@@ -317,7 +317,7 @@ my %table=(
+diff --git a/Configure b/Configure
+index db0f517..6180800 100755
+--- a/Configure
++++ b/Configure
+@@ -336,7 +336,7 @@ my %table=(
  "linux-ppc",	"gcc:-DB_ENDIAN -DTERMIO -O3 -Wall::-D_REENTRANT::-ldl:BN_LLONG RC4_CHAR RC4_CHUNK DES_RISC1 DES_UNROLL::linux_ppc32.o::::::::::dlfcn:linux-shared:-fPIC::.so.\$(SHLIB_MAJOR).\$(SHLIB_MINOR)",
  #### IA-32 targets...
  "linux-ia32-icc",	"icc:-DL_ENDIAN -DTERMIO -O2 -no_cpprt::-D_REENTRANT::-ldl:BN_LLONG ${x86_gcc_des} ${x86_gcc_opts}:${x86_elf_asm}:dlfcn:linux-shared:-KPIC::.so.\$(SHLIB_MAJOR).\$(SHLIB_MINOR)",
@@ -14,3 +22,6 @@ diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej'
  "linux-aout",	"gcc:-DL_ENDIAN -DTERMIO -O3 -fomit-frame-pointer -march=i486 -Wall::(unknown):::BN_LLONG ${x86_gcc_des} ${x86_gcc_opts}:${x86_out_asm}",
  ####
  "linux-generic64","gcc:-DTERMIO -O3 -Wall::-D_REENTRANT::-ldl:SIXTY_FOUR_BIT_LONG RC4_CHAR RC4_CHUNK DES_INT DES_UNROLL BF_PTR:${no_asm}:dlfcn:linux-shared:-fPIC::.so.\$(SHLIB_MAJOR).\$(SHLIB_MINOR)",
+-- 
+2.4.3
+

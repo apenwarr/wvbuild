@@ -1,16 +1,26 @@
-2008-06-27  Avery Pennarun <averyp@averyp-server>
+From 2a702858caaad346e8f815b89946bd5529444d1e Mon Sep 17 00:00:00 2001
+From: Eduardo Bacchi Kienetz <eduardo@kienetz.com>
+Date: Wed, 9 Sep 2015 18:34:26 -0600
+Subject: [PATCH 2/5] Fix an uninitialized variable in openssl that was causing
+ valgrind problems.
 
-	* Initialize an otherwise uninitialized variable in bn_mont.c.  This
-	  problem was causing lots and lots of valgrind errors in wvstreams.
+Based on Avery's commit https://github.com/apenwarr/wvbuild/commit/f2a311e5514b4052202c0886da332b3a3da47a6c for openssl-0.9.8g.
+---
+ crypto/bn/bn_lib.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' --exclude '*.l[oa]' --exclude '*.lai' --exclude '*.o' --exclude .deps --exclude .libs ../.build_orig/openssl/crypto/bn/bn_lib.c openssl/crypto/bn/bn_lib.c
---- ../.build_orig/openssl/crypto/bn/bn_lib.c	2007-03-27 20:14:18.000000000 -0400
-+++ openssl/crypto/bn/bn_lib.c	2008-06-27 20:11:54.000000000 -0400
-@@ -304,6 +304,7 @@ BIGNUM *BN_new(void)
- 		BNerr(BN_F_BN_NEW,ERR_R_MALLOC_FAILURE);
- 		return(NULL);
- 		}
-+	memset(ret, 0, sizeof(BIGNUM));
- 	ret->flags=BN_FLG_MALLOCED;
- 	ret->top=0;
- 	ret->neg=0;
+diff --git a/crypto/bn/bn_lib.c b/crypto/bn/bn_lib.c
+index becb957..db44877 100644
+--- a/crypto/bn/bn_lib.c
++++ b/crypto/bn/bn_lib.c
+@@ -272,6 +272,7 @@ BIGNUM *BN_new(void)
+         BNerr(BN_F_BN_NEW, ERR_R_MALLOC_FAILURE);
+         return (NULL);
+     }
++    memset(ret, 0, sizeof(BIGNUM));
+     ret->flags = BN_FLG_MALLOCED;
+     ret->top = 0;
+     ret->neg = 0;
+-- 
+2.4.3
+
