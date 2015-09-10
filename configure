@@ -15,6 +15,7 @@ EOF
 make wvports/openssl wvports/dbus wvports/boost
 
 echo "--> Configuring WvStreams..."
+mkdir -p "$MYHOST"
 (cd wvstreams && ./autogen.sh)
 (set -x; cd "$MYHOST" && \
 	../wvstreams/configure \

@@ -1,42 +1,41 @@
-2008-09-10  Avery Pennarun <apenwarr@harmony>
+From a1ec0e8f6a7470654fca1a76623d805f84f307a0 Mon Sep 17 00:00:00 2001
+From: Eduardo Bacchi Kienetz <eduardo@kienetz.com>
+Date: Wed, 9 Sep 2015 18:27:20 -0600
+Subject: [PATCH 1/5] openssl: fix more uninitialized memory bugs.
 
-	* Fix several (possibly important) uninitialized variables that
-	  irritate valgrind.  Tested with valgrind 3.2.1-1 on Debian Etch.
+Based on Avery's commit https://github.com/apenwarr/wvbuild/commit/85a9eedd5f692ab4fada64aa46a77f69cf66fd01 for openssl 0.9.8g.
+---
+ crypto/bn/bn_mont.c  | 1 +
+ crypto/rsa/rsa_gen.c | 4 ++++
+ 2 files changed, 5 insertions(+)
 
-diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' --exclude '*.l[oa]' --exclude '*.lai' --exclude '*.o' --exclude .deps --exclude .libs --exclude opensslconf.h --exclude buildinf.h --exclude '*.s' --exclude '*.bak' --exclude '*.0' --exclude '*.so' --exclude '*.so.*' --exclude '*.a' --exclude '*.pc' --exclude openssl --exclude Makefile --exclude '*test' ../.build_orig/openssl/crypto/bn/bn_mont.c openssl/crypto/bn/bn_mont.c
---- ../.build_orig/openssl/crypto/bn/bn_mont.c	2007-09-18 12:31:18.000000000 -0400
-+++ openssl/crypto/bn/bn_mont.c	2008-09-10 21:03:12.000000000 -0400
-@@ -391,6 +391,8 @@ int BN_MONT_CTX_set(BN_MONT_CTX *mont, c
- 		{
- 		BIGNUM tmod;
- 		BN_ULONG buf[2];
-+		
-+		memset(&tmod, 0, sizeof(tmod));
+diff --git a/crypto/bn/bn_mont.c b/crypto/bn/bn_mont.c
+index bf40e82..8d0cb97 100644
+--- a/crypto/bn/bn_mont.c
++++ b/crypto/bn/bn_mont.c
+@@ -624,6 +624,7 @@ int BN_MONT_CTX_set(BN_MONT_CTX *mont, const BIGNUM *mod, BN_CTX *ctx)
+         BIGNUM tmod;
+         BN_ULONG buf[2];
  
- 		mont->ri=(BN_num_bits(mod)+(BN_BITS2-1))/BN_BITS2*BN_BITS2;
- 		BN_zero(R);
-diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' --exclude '*.l[oa]' --exclude '*.lai' --exclude '*.o' --exclude .deps --exclude .libs --exclude opensslconf.h --exclude buildinf.h --exclude '*.s' --exclude '*.bak' --exclude '*.0' --exclude '*.so' --exclude '*.so.*' --exclude '*.a' --exclude '*.pc' --exclude openssl --exclude Makefile --exclude '*test' ../.build_orig/openssl/crypto/rand/randfile.c openssl/crypto/rand/randfile.c
---- ../.build_orig/openssl/crypto/rand/randfile.c	2007-03-02 12:44:55.000000000 -0500
-+++ openssl/crypto/rand/randfile.c	2008-09-10 20:58:17.000000000 -0400
-@@ -102,6 +102,7 @@ int RAND_load_file(const char *file, lon
++        memset(&tmod, 0, sizeof(tmod));
+         mont->ri = (BN_num_bits(mod) + (BN_BITS2 - 1)) / BN_BITS2 * BN_BITS2;
+         BN_zero(R);
+ # if 0                          /* for OpenSSL 0.9.9 mont->n0, would be "#if
+diff --git a/crypto/rsa/rsa_gen.c b/crypto/rsa/rsa_gen.c
+index 5522827..045b84f 100644
+--- a/crypto/rsa/rsa_gen.c
++++ b/crypto/rsa/rsa_gen.c
+@@ -96,6 +96,10 @@ static int rsa_builtin_keygen(RSA *rsa, int bits, BIGNUM *e_value,
+     int bitsp, bitsq, ok = -1, n = 0;
+     BN_CTX *ctx = NULL;
  
- 	if (file == NULL) return(0);
- 
-+	memset(&sb, 0, sizeof(sb));
- 	if (stat(file,&sb) < 0) return(0);
- 	RAND_add(&sb,sizeof(sb),0.0);
- 	if (bytes == 0) return(ret);
-diff -rpuN --exclude .depend --exclude '*~' --exclude '*.orig' --exclude '*.rej' --exclude '*.l[oa]' --exclude '*.lai' --exclude '*.o' --exclude .deps --exclude .libs --exclude opensslconf.h --exclude buildinf.h --exclude '*.s' --exclude '*.bak' --exclude '*.0' --exclude '*.so' --exclude '*.so.*' --exclude '*.a' --exclude '*.pc' --exclude openssl --exclude Makefile --exclude '*test' ../.build_orig/openssl/crypto/rsa/rsa_gen.c openssl/crypto/rsa/rsa_gen.c
---- ../.build_orig/openssl/crypto/rsa/rsa_gen.c	2007-03-27 20:14:22.000000000 -0400
-+++ openssl/crypto/rsa/rsa_gen.c	2008-09-10 21:06:15.000000000 -0400
-@@ -89,6 +89,10 @@ static int rsa_builtin_keygen(RSA *rsa, 
- 	BIGNUM *pr0,*d,*p;
- 	int bitsp,bitsq,ok= -1,n=0;
- 	BN_CTX *ctx=NULL;
-+	
-+	memset(&local_r0, 0, sizeof(local_r0));
-+	memset(&local_d, 0, sizeof(local_d));
-+	memset(&local_p, 0, sizeof(local_p));
- 
- 	ctx=BN_CTX_new();
- 	if (ctx == NULL) goto err;
++    memset(&local_r0, 0, sizeof(local_r0));
++    memset(&local_d, 0, sizeof(local_d));
++    memset(&local_p, 0, sizeof(local_p));
++
+     ctx = BN_CTX_new();
+     if (ctx == NULL)
+         goto err;
+-- 
+2.4.3
+

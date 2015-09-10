@@ -1,37 +1,55 @@
-2008-06-09  Lukasz Kosewski <lkosewsk@gmail.com>
+From 2c253a46250248421a206c7067417fb55ea08e35 Mon Sep 17 00:00:00 2001
+From: Eduardo Bacchi Kienetz <eduardo@kienetz.com>
+Date: Wed, 9 Sep 2015 18:40:13 -0600
+Subject: [PATCH 4/5] More theories!  configure-mingw32 should really have a
+ 'set -e' in it, to prevent make failing at some point and the build system
+ continuing on.  openssl needs a patch to compile with mingw4.2
 
-	* Remove the extern qualifier applied to variables if OPENSSL_EXPORT_VAR_AS_FUNCTION is defined, thus not changing behaviour at all while avoiding compiler errors.
+Based on Lukasz's commit https://github.com/apenwarr/wvbuild/commit/5c8e769c389a079b5c4abc57adb8d61bb4347d3e's for openssl-0.9.8g.
+---
+ crypto/des/enc_read.c |  2 +-
+ e_os2.h               | 11 +++++++----
+ 2 files changed, 8 insertions(+), 5 deletions(-)
 
---- openssl.old/e_os2.h	2008-06-09 22:51:21.000000000 +0000
-+++ openssl/e_os2.h	2008-06-09 22:52:49.000000000 +0000
-@@ -262,13 +262,16 @@ extern "C" {
- 	#define foobar OPENSSL_GLOBAL_REF(foobar)
- */
- # define OPENSSL_IMPLEMENT_GLOBAL(type,name)			     \
--	extern type _hide_##name;				     \
--	type *_shadow_##name(void) { return &_hide_##name; }	     \
--	static type _hide_##name
-+	static type _hide_##name;				     \
-+	type *_shadow_##name(void) { return &_hide_##name; }
-+# define OPENSSL_INIT_GLOBAL(type,name,val)			     \
-+	static type _hide_##name = val;				     \
-+	type *_shadow_##name(void) { return &_hide_##name; }
- # define OPENSSL_DECLARE_GLOBAL(type,name) type *_shadow_##name(void)
- # define OPENSSL_GLOBAL_REF(name) (*(_shadow_##name()))
- #else
- # define OPENSSL_IMPLEMENT_GLOBAL(type,name) OPENSSL_GLOBAL type _shadow_##name
-+# define OPENSSL_INIT_GLOBAL(type,name,val) OPENSSL_GLOBAL type _shadow_##name = val
- # define OPENSSL_DECLARE_GLOBAL(type,name) OPENSSL_EXPORT type _shadow_##name
- # define OPENSSL_GLOBAL_REF(name) _shadow_##name
- #endif
---- openssl.old/crypto/des/enc_read.c	2008-06-10 18:50:23.000000000 +0000
-+++ openssl/crypto/des/enc_read.c	2008-06-10 18:50:52.000000000 +0000
-@@ -63,7 +63,7 @@
- 
- /* This has some uglies in it but it works - even over sockets. */
- /*extern int errno;*/
--OPENSSL_IMPLEMENT_GLOBAL(int,DES_rw_mode)=DES_PCBC_MODE;
+diff --git a/crypto/des/enc_read.c b/crypto/des/enc_read.c
+index 8746e8b..7014044 100644
+--- a/crypto/des/enc_read.c
++++ b/crypto/des/enc_read.c
+@@ -65,7 +65,7 @@
+ /*
+  * extern int errno;
+  */
+-OPENSSL_IMPLEMENT_GLOBAL(int, DES_rw_mode) = DES_PCBC_MODE;
 +OPENSSL_INIT_GLOBAL(int,DES_rw_mode,DES_PCBC_MODE);
  
- 
- /*
+ /*-
+  * WARNINGS:
+diff --git a/e_os2.h b/e_os2.h
+index 9d691e2..2256b4d 100644
+--- a/e_os2.h
++++ b/e_os2.h
+@@ -274,14 +274,17 @@ extern "C" {
+  *      #define foobar OPENSSL_GLOBAL_REF(foobar)
+  */
+ # ifdef OPENSSL_EXPORT_VAR_AS_FUNCTION
+-#  define OPENSSL_IMPLEMENT_GLOBAL(type,name)                         \
+-        extern type _hide_##name;                                    \
+-        type *_shadow_##name(void) { return &_hide_##name; }         \
+-        static type _hide_##name
++#  define OPENSSL_IMPLEMENT_GLOBAL(type,name)			     \
++        static type _hide_##name;				     \
++        type *_shadow_##name(void) { return &_hide_##name; }
++# define OPENSSL_INIT_GLOBAL(type,name,val)			     \
++        static type _hide_##name = val;
++        type *_shadow_##name(void) { return &_hide_##name; }
+ #  define OPENSSL_DECLARE_GLOBAL(type,name) type *_shadow_##name(void)
+ #  define OPENSSL_GLOBAL_REF(name) (*(_shadow_##name()))
+ # else
+ #  define OPENSSL_IMPLEMENT_GLOBAL(type,name) OPENSSL_GLOBAL type _shadow_##name
++#  define OPENSSL_INIT_GLOBAL(type,name,val) OPENSSL_GLOBAL type _shadow_##name = val
+ #  define OPENSSL_DECLARE_GLOBAL(type,name) OPENSSL_EXPORT type _shadow_##name
+ #  define OPENSSL_GLOBAL_REF(name) _shadow_##name
+ # endif
+-- 
+2.4.3
+
