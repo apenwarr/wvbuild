@@ -576,7 +576,8 @@ void WvX509::decode(const DumpMode mode, WvBuf &encoded)
     else
     {        
         BIO *membuf = BIO_new(BIO_s_mem());
-        BIO_write(membuf, encoded.get(encoded.used()), encoded.used());
+        size_t len = encoded.used();
+        BIO_write(membuf, encoded.get(len), len);
 
         if (mode == CertPEM)
             cert = PEM_read_bio_X509(membuf, NULL, NULL, NULL);
@@ -1018,9 +1019,10 @@ static void parse_stack(WvStringParm ext, WvStringList &list,
     for (i.rewind();i.next();)
     {
         WvString stack_entry(*i);
-        if (strstr(stack_entry, prefix))
+        const char *p = strstr(stack_entry.edit(), prefix);
+        if (p)
         {
-            WvString uri(stack_entry.edit() + prefix.len());
+            WvString uri(p + prefix.len());
             list.append(uri);  
         }
     }
@@ -1157,7 +1159,11 @@ WvString WvX509::get_extension(int nid) const
         
         if (ext)
         {
+#if (OPENSSL_VERSION_NUMBER >= 0x10000000L)
+            const X509V3_EXT_METHOD *method = X509V3_EXT_get(ext);
+#else
             X509V3_EXT_METHOD *method = X509V3_EXT_get(ext);
+#endif
             if (!method)
             {
                 WvDynBuf buf;

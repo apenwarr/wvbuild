@@ -59,7 +59,7 @@ endif
 
 ifdef _WIN32
   XPATH += $(WVSTREAMS)/win32 $(WVSTREAMS)/win32/cominclude
-  AR=i586-mingw32msvc-ar
+  AR=i686-w64-mingw32-ar
   LIBS += -lssl -lcrypto -lz -lole32 -lrpcrt4 -lwsock32 -lgdi32 -limagehlp \
   	  -lstdc++
 else
@@ -92,7 +92,7 @@ runtests:
 
 INCFLAGS=$(addprefix -I,$(WVSTREAMS_INC) $(XPATH))
 CPPFLAGS+=$(INCFLAGS) \
-	-D_BSD_SOURCE -D_GNU_SOURCE $(OSDEFINE) \
+	-D_DEFAULT_SOURCE -D_GNU_SOURCE $(OSDEFINE) \
 	-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 \
 	-DUNSTABLE
 

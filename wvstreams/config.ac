@@ -136,7 +136,7 @@ AC_C_BIGENDIAN
 CPPFLAGS_save="$CPPFLAGS"
 WV_APPEND(CPPFLAGS, -Werror)
 AC_MSG_CHECKING(for __attribute__ ((deprecated)))
-AC_COMPILE_IFELSE(
+AC_COMPILE_IFELSE([AC_LANG_SOURCE(
 [#include "confdefs.h"
 void f() __attribute__ ((deprecated));
 void f()
@@ -147,7 +147,7 @@ int main()
 {
     return 0;
 }
-],
+])],
 		  [AC_MSG_RESULT([yes])
 		   AC_DEFINE([ATTR_DEPRECATED],
 			     [__attribute__ ((deprecated))],
@@ -164,15 +164,15 @@ AC_CHECK_FUNC(argp_parse)
 if test "$ac_cv_func_argp_parse" != yes \
     -o "$ac_cv_header_argp_h" != yes ; then
     (
-    	echo
-    	echo 'configuring argp...'
-	mkdir -p argp
-    	cd argp
-	MYARGPDIR="../wvsrcdir/argp"
-	rm -f $MYARGPDIR/config.status
-    	$MYARGPDIR/configure --host=$host_cpu-$host_os --srcdir=$MYARGPDIR || exit $?
-    	echo 'argp configured.'
-    	echo
+        echo
+        echo 'configuring argp...'
+        mkdir -p argp
+        cd argp
+        MYARGPDIR="../wvsrcdir/argp"
+        rm -f $MYARGPDIR/config.status
+        $MYARGPDIR/configure --host=$host --srcdir=$MYARGPDIR || exit $?
+        echo 'argp configured.'
+        echo
     ) || exit $?
     USE_WVSTREAMS_ARGP=1
 fi
@@ -393,6 +393,7 @@ if test "$with_dbus" != "no"; then
         if pkg-config --atleast-version 1.2.14 dbus-1; then
 	    WV_APPEND(CPPFLAGS, [`pkg-config --cflags dbus-1`])
             WV_APPEND(LDFLAGS, [`pkg-config --libs dbus-1`])
+            LIBS_DBUS=`pkg-config --libs dbus-1`
 	    AC_MSG_RESULT([yes])
         else
 	    with_dbus=no
@@ -404,6 +405,7 @@ if test "$with_dbus" != "no"; then
     	WV_APPEND(CPPFLAGS, -I$with_dbus)
     	WV_APPEND(LDFLAGS, -L$DBUS_LIBDIR)
     	WV_APPEND(LIBS, -ldbus-1)
+        LIBS_DBUS=$DBUS_LIBDIR/libdbus-1.a
     fi
 
     # double check that we actually have D-Bus
@@ -418,7 +420,6 @@ if test "$with_dbus" != "no"; then
     if test "$with_dbus" != "no"; then
         AC_DEFINE(WITH_DBUS,,
                   [Define to enable DBUS support.])
-        LIBS_DBUS=$DBUS_LIBDIR/libdbus-1.a
     fi
 fi
 
@@ -459,7 +460,7 @@ if test "$with_pam" != "no"; then
     LIBS_save="$LIBS"
     AC_CHECK_LIB(pam, pam_start,, [with_pam=no])
     AC_MSG_CHECKING(for sane PAM implementation)
-    AC_COMPILE_IFELSE(
+    AC_COMPILE_IFELSE([AC_LANG_SOURCE(
 [#include "confdefs.h"
 #if HAVE_SECURITY_PAM_APPL_H
 # include <security/pam_appl.h>
@@ -479,7 +480,7 @@ int main()
     c.conv = noconv;
     return 0;
 }
-],
+])],
 		      [AC_MSG_RESULT([yes])
 		       AC_DEFINE([HAVE_BROKEN_PAM], [0])],
 		      [AC_MSG_RESULT([no])
