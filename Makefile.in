@@ -1,5 +1,4 @@
 WVSTREAMS:=@WVSRCDIR@
-S:=@WVSRCDIR_SLASH@
 
 include $(WVSTREAMS)/wvrules.mk
 include $(WVSTREAMS)/install.mk
@@ -133,9 +132,13 @@ TARGETS += libwvstreams.so
 TARGETS += crypto/tests/ssltest ipstreams/tests/unixtest
 TARGETS += crypto/tests/printcert
 
-ifneq ("$(with_readline)", "no")
-  TARGETS += ipstreams/tests/wsd
-  ipstreams/tests/wsd-LIBS += -lreadline
+ifndef _MACOS
+  ifneq ("$(with_readline)", "no")
+    TARGETS += ipstreams/tests/wsd
+    ipstreams/tests/wsd-LIBS += -lreadline
+  else
+    TEST_SKIP_OBJS += ipstreams/tests/wsd
+  endif
 else
   TEST_SKIP_OBJS += ipstreams/tests/wsd
 endif
@@ -181,10 +184,7 @@ ifneq ("$(with_dbus)", "no")
   libwvdbus_OBJS += $(call objects,dbus)
   libwvdbus.so: $(libwvdbus_OBJS) $(LIBWVSTREAMS)
   libwvdbus.so-LIBS += $(LIBS_DBUS)
-  dbus/tests/wvdbus-LIBS += $(LIBS_DBUS)
-  dbus/tests/wvdbusd-LIBS += $(LIBS_DBUS)
   $(DBUS_TESTS): $(LIBWVDBUS)
-  $(DBUS_TESTS): LIBS+=$(LIBS_DBUS)
 else
   TEST_SKIP_OBJS += dbus/t/%
 endif
@@ -241,23 +241,23 @@ tests: $(REAL_TESTS)
 
 test: all autodep-test tests qtest
 
+BIN_P := $(shell pwd):$(shell pwd)/uniconf/daemon:$(shell pwd)/uniconf/tests:$(PATH)
+LD_LP := $(BIN_P):$(LD_LIBRARY_PATH)
+
 qtest: all wvtestmain
-	LD_LIBRARY_PATH="$(LD_LIBRARY_PATH):$(shell pwd)" $(WVTESTRUN) $(MAKE) runtests
+	$(WVTESTRUN) $(MAKE) runtests
 
 runtests:
-	$(VALGRIND) ./wvtestmain '$(TESTNAME)'
+	LD_LIBRARY_PATH="$(LD_LP)" PATH="$(BIN_P)" $(VALGRIND) ./wvtestmain '$(TESTNAME)'
 ifeq ("$(TESTNAME)", "")
-	PATH=$(PWD)/uniconf/tests:$(PWD)/uniconf/daemon:$(PATH); \
-	cd $(WVSTREAMS)/uniconf/tests && \
-	DAEMON=0 ./unitest.sh && \
-	DAEMON=1 ./unitest.sh
+	cd $(WVSTREAMS)/uniconf/tests && DAEMON=0 LD_LIBRARY_PATH="$(LD_LP)" PATH="$(BIN_P)" ./unitest.sh
+	cd $(WVSTREAMS)/uniconf/tests && DAEMON=1 LD_LIBRARY_PATH="$(LD_LP)" PATH="$(BIN_P)" ./unitest.sh
 endif
 
 
 TEST_TARGETS = 	$(filter-out $(TEST_SKIP_OBJS), $(call objects, $(filter-out win32/%, \
 		$(shell find . -type d -name t | sed 's,^\./,,'))))
 
-wvtestmain-LIBS += $(LIBS) $(LIBS_DBUS)
 wvtestmain: $(TEST_TARGETS) $(LIBWVDBUS) $(LIBUNICONF) $(LIBWVSTREAMS) $(LIBWVTEST)
 
 # self test for wvrules.mk autodependencies, since people keep f$@#! breaking

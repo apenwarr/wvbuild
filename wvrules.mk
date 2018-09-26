@@ -59,7 +59,7 @@ endif
 
 ifdef _WIN32
   XPATH += $(WVSTREAMS)/win32 $(WVSTREAMS)/win32/cominclude
-  AR=i586-mingw32msvc-ar
+  AR=i686-w64-mingw32-ar
   LIBS += -lssl -lcrypto -lz -lole32 -lrpcrt4 -lwsock32 -lgdi32 -limagehlp \
   	  -lstdc++
 else
@@ -76,11 +76,11 @@ endif
 # macros that expand to the object files in the given directories
 objects=$(sort $(foreach type,c cc,$(call objects_$(type),$1)))
 objects_c=$(filter-out $(WV_EXCLUDES), \
-		$(patsubst $S%.c,%.o,$(wildcard $(addprefix $S,$(addsuffix /*.c,$1)))))
+		$(patsubst $(WVSTREAMS)/%.c,%.o,$(wildcard $(addprefix $(WVSTREAMS)/,$(addsuffix /*.c,$1)))))
 objects_cc=$(filter-out $(WV_EXCLUDES), \
-		$(patsubst $S%.cc,%.o,$(wildcard $(addprefix $S,$(addsuffix /*.cc,$1)))))
+		$(patsubst $(WVSTREAMS)/%.cc,%.o,$(wildcard $(addprefix $(WVSTREAMS)/,$(addsuffix /*.cc,$1)))))
 tests_cc=$(filter-out $(WV_EXCLUDES), \
-		$(patsubst $S%.cc,%,$(wildcard $(addprefix $S,$(addsuffix /*.cc,$1)))))
+		$(patsubst $(WVSTREAMS)/%.cc,%,$(wildcard $(addprefix $(WVSTREAMS)/,$(addsuffix /*.cc,$1)))))
 
 # default "test" rule does nothing...
 .PHONY: test runtests
@@ -92,7 +92,7 @@ runtests:
 
 INCFLAGS=$(addprefix -I,$(WVSTREAMS_INC) $(XPATH))
 CPPFLAGS+=$(INCFLAGS) \
-	-D_BSD_SOURCE -D_GNU_SOURCE $(OSDEFINE) \
+	-D_DEFAULT_SOURCE -D_GNU_SOURCE $(OSDEFINE) \
 	-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 \
 	-DUNSTABLE
 
@@ -158,12 +158,10 @@ ifdef _WIN32
 else ifdef _SOLARIS
   define wvlink_so
 	$(LINK_MSG)$(WVLINK_CC) $(LDFLAGS) $($1-LDFLAGS) -shared -o $1 $(filter %.o %.a %.so,$2) $($1-LIBS) $(LIBS) $(XX_LIBS)
-	$(if $(filter-out $(call wvsoname,$1),$1),$(call wvlns,$1,$(call wvsoname,$1)))
   endef
 else ifdef _MACOS
   define wvlink_so
 	$(LINK_MSG)$(WVLINK_CC) $(LDFLAGS) $($1-LDFLAGS) -dynamiclib -o $1 $(filter %.o %.a %.so,$2) $($1-LIBS) $(LIBS) $(XX_LIBS)
-	$(if $(filter-out $(call wvsoname,$1),$1),$(call wvlns,$1,$(call wvsoname,$1)))
   endef
 else
   define wvlink_so
@@ -174,7 +172,7 @@ endif
 
 /%.a:;		@echo "Library $@ does not exist!"; exit 1
 
-VPATH=$S
+VPATH=$(WVSTREAMS)/
 
 $O%.o: %.c;		$(call wvcc ,$@,$<,$*)
 $O%.fpic.o: %.c;	$(call wvcc ,$@,$<,$*,-fPIC)

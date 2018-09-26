@@ -1,7 +1,7 @@
+ifeq ("$(with_readline)", "no")
 install: install-shared install-dev install-uniconfd
-
-ifneq ("$(with_readline)", "no")
-install: install-wsd
+else
+install: install-shared install-dev install-uniconfd install-wsd
 endif
 
 install-shared: $(TARGETS_SO)

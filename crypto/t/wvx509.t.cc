@@ -1,6 +1,5 @@
 #include "wvfile.h"
 #include "wvfileutils.h"
-#include "wvstringlist.h"
 #include "wvrsa.h"
 #include "wvtest.h"
 #include "wvx509.h"
@@ -43,41 +42,6 @@ const static char carillon_cert[] =
 "rqE1w9PZDeLz9ZhKfo/pcxCvE7RdS1Zhpi3KMUEtDXq9RN2D81mvo1TyzHvm84QB\n"
 "R7Z/1y/HH8vZj7q//xJrJt/IqPuXcYUacaS520ouzPhXNRkMxl4VZ8fCGnbrqPig\n"
 "0KUUwRu2l4LDN9drx+L5\n"
-"-----END CERTIFICATE-----\n";
-
-const static char manysancert[] =
-"-----BEGIN CERTIFICATE-----\n"
-"MIIFnjCCBIagAwIBAgIBaDANBgkqhkiG9w0BAQUFADB/MQswCQYDVQQGEwJDQTEr\n"
-"MCkGA1UECgwiQ2FyaWxsb24gSW5mb3JtYXRpb24gU2VjdXJpdHkgSW5jLjEkMCIG\n"
-"A1UECwwbREVNTyBDZXJ0aWZpY2F0aW9uIFNlcnZpY2VzMR0wGwYDVQQDDBRURVNU\n"
-"IFJTQSBTaWduaW5nIENBMTAeFw0wOTA5MjkxNTA0MDlaFw0xMjA5MjgxNTA0MDla\n"
-"MGMxCzAJBgNVBAYTAkNBMSswKQYDVQQKDCJDYXJpbGxvbiBJbmZvcm1hdGlvbiBT\n"
-"ZWN1cml0eSBJbmMuMQ8wDQYDVQQLDAZQZW9wbGUxFjAUBgNVBAMMDVRlc3R5IENo\n"
-"aWNrZW4wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDD/RKSEXLLGdtS\n"
-"dm1dT0lmgsdxlnVizE3o9+K+UgYsNGmGCfJjw+0roZiq0W6wlR6F7kLVSegqoW0X\n"
-"qbd/WlDtApgeAOMkZA/XyxCLq+mwpBGoyi9o8nmOM/AT9fVx+Jaz7m8z4CITVMG4\n"
-"AkVTcWBZ5lmp0bHcFO/COR4+hL9R45jeaAqi3oMKRvLFxkPj/H+RrC2zIiVUgea4\n"
-"Rvbw61zLw982zyhPvcwew9EgfvAXC5qusnaFoZIDhHBSiGGOPvKDk1Bq6KsW1KCj\n"
-"l6rNiAeiG/kNRDY0+TpM4hu+XgJmmf3nX1BphqwE8fc2cXpF8hhgFoLRyxBd4PTT\n"
-"MoNlxt8XAgMBAAGjggI/MIICOzAJBgNVHRMEAjAAMA4GA1UdDwEB/wQEAwIEsDAp\n"
-"BgNVHSUEIjAgBggrBgEFBQcDAgYIKwYBBQUHAwQGCisGAQQBgjcKAwQwNQYJYIZI\n"
-"AYb4QgENBCgWJkRvIE5vdCB0cnVzdCAtIFBVUkUgVEVTVCBwdXJwb3NlcyBvbmx5\n"
-"MIGLBgkqhkiG9w0BCQ8EfjB8MAcGBSsOAwIaMAsGCWCGSAFlAwQCATAHBgUrDgMC\n"
-"HTALBglghkgBZQMEASkwCwYJYIZIAWUDBAEqMAsGCWCGSAFlAwQBKzALBglghkgB\n"
-"ZQMEAQEwCwYJYIZIAWUDBAECMAsGCWCGSAFlAwQBATANBgkqhkiG9w0BAQEFADAd\n"
-"BgNVHQ4EFgQUWM5f6U0t6RAfaGCmluSdJQtn60QwHwYDVR0jBBgwFoAUWcjLqTFG\n"
-"AdshOA/RbuQhWTK4e9cwge0GA1UdEQSB5TCB4oEUdGVzdHVzZXJAZXhhbXBsZS5j\n"
-"b22CD3d3dy5leGFtcGxlLmNvbaRDMEExCzAJBgNVBAYTAkNBMRgwFgYDVQQKEw9F\n"
-"eGFtcGxlIENvbXBhbnkxGDAWBgNVBAsTD1NvbWUgRGVwYXJ0bWVudKAuBgorBgEE\n"
-"AYI3FAIDoCAMHnRlc3RAa2VyYmVyb3NlLWRvbWFpbi5pbnRlcm5hbKAfBggrBgEF\n"
-"BQcIB6ATFhFfbWFpbC5leGFtcGxlLmNvbaAjBggrBgEFBQcIBaAXDBVqdWxpZXRA\n"
-"aW0uZXhhbXBsZS5jb20wDQYJKoZIhvcNAQEFBQADggEBAFmN5jWopg1GB+9ZFZUG\n"
-"d+3NOOZ4SGf2Nkjih/+qEw8P6Gp07W5ThNLennnAnNQJYVvk0FaoLMuii5JMkIRL\n"
-"9hk45alX9uc+HP18jYPMs3OLxCfMpZd01ll6GAXx1/ejBdZ2n1QEcvJld+FPkbwO\n"
-"VYcJX6yEYAkA85L7WwOa2qL6ggo2Bgnk3sFlMI1a+ifA+sgKjiIt9nrA6Xwh/VRc\n"
-"61sEXHNrZ2twpy1kCkcUTuKEPZdt7k75mhE0nW7NLM9w4Z03sshgjW1TaivkUKt9\n"
-"zssi3CpoPD49ipncnFIMO9FTyOeJH03kKM5qQmAEUj7mNyZOmiYWrxzrZjRgXykW\n"
-"6uQ=\n"
 "-----END CERTIFICATE-----\n";
 
 const static char rsakeytext[] = 
@@ -395,6 +359,7 @@ WVTEST_MAIN("certreq / signreq / signcert")
 	= WvX509Mgr::certreq("cn=test.signed.com,dc=signed,dc=com", rsakey);
 
     WvX509Mgr cacert("CN=test.foo.com,DC=foo,DC=com", DEFAULT_KEYLEN, true);
+    WvX509Mgr cacert2("CN=test.foo.com,DC=foo,DC=com", DEFAULT_KEYLEN, true);
     WVPASS(cacert.isok());
     WVPASS(cacert.validate());
     
@@ -414,8 +379,19 @@ WVTEST_MAIN("certreq / signreq / signcert")
     ca_in.append("http://localhost/~wlach/testca.pem");
     ca_in.append("http://localhost/~wlach/testca-alt.pem");
     cert.set_aia(ca_in, ocsp_in);
+    // NOTE(apenwarr): This used to recheck cert.signedbyca(cacert)
+    // *without* re-signing, with the expectation that it would fail (since
+    // we changed stuff and now the signature is invalid).  At some point
+    // openssl (at least in v1.0.0l) broke this by caching the signed
+    // portion of a cert until you re-sign it, which sounds kind of
+    // dangerous to me, but I guess it doesn't come up very often (as long
+    // as you don't forget to re-sign!).  I changed the test to sign using a
+    // separate cert instead, to show that signedbyca() at least can tell
+    // the difference between two signing certs.
+    cacert2.signcert(cert);
     WVPASS(cert.issuedbyca(cacert));
     WVFAIL(cert.signedbyca(cacert));
+    WVPASS(cert.signedbyca(cacert2));
 
     // should pass again after re-signing
     cacert.signcert(cert);    
@@ -692,20 +668,4 @@ WVTEST_MAIN("extended key usage")
 
     ca.set_ext_key_usage("OCSP Signing");
     WVPASSEQ(ca.get_ext_key_usage(), "OCSP Signing");
-}
-
-WVTEST_MAIN("Subject Alt Name")
-{
-    WvX509 x509;
-    x509.decode(WvX509::CertPEM, manysancert);
-
-    WvStringList l;
-    l.split(x509.get_altsubject(), "\n");
-    WVPASSEQ(l.popstr(), "email:testuser@example.com");
-    WVPASSEQ(l.popstr(), "DNS:www.example.com");
-    WVPASSEQ(l.popstr(), "DirName:/C=CA/O=Example Company/OU=Some Department");
-    WVPASSEQ(l.popstr(), "Othername: Microsoft UPN: "
-                         "test@kerberose-domain.internal ");
-    WVPASSEQ(l.popstr(), "Othername: DNS SRV: _mail.example.com");
-    WVPASSEQ(l.popstr(), "Othername: XMPP Address: juliet@im.example.com ");
 }

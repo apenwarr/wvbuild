@@ -12,7 +12,6 @@
 #include "wvx509mgr.h"
 #include "wvbase64.h"
 
-
 static const char * warning_str_get = "Tried to determine %s, but CRL is blank!\n";
 #define CHECK_CRL_EXISTS_GET(x, y)                                      \
     if (!crl) {                                                         \
@@ -308,7 +307,8 @@ void WvCRL::decode(const DumpMode mode, WvBuf &buf)
     }
 
     BIO *bufbio = BIO_new(BIO_s_mem());
-    BIO_write(bufbio, buf.get(buf.used()), buf.used());
+    size_t len = buf.used();
+    BIO_write(bufbio, buf.get(len), len);
 
     if (mode == CRLPEM)
     {

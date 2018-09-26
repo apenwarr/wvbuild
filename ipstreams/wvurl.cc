@@ -27,9 +27,9 @@ static DefaultPort portmap[] = {
     { "http", 80, true },
     { "file", 0, true },
     { "sip", 5060, false },
-    { "ftp", 21, true },
     { "ldaps", 636, false },
     { "ldap", 389, false },
+    { "ftp", 21, true },
     { NULL, 0 }
 };
 

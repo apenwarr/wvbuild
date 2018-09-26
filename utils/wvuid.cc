@@ -6,6 +6,7 @@
  */ 
 #include "wvautoconf.h"
 #include "wvuid.h"
+#include <unistd.h>
 
 #if WIN32
 
@@ -33,6 +34,7 @@ wvuid_t wvgetuid()
 
 #else // not WIN32
 
+#include <unistd.h>
 
 WvString wv_username_from_uid(wvuid_t uid)
 {

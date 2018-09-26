@@ -4,7 +4,7 @@ ifdef _WIN32
   LIBWVUTILS=$(LIBWVSTATIC)
   LIBWVSTREAMS=$(LIBWVSTATIC)
   LIBUNICONF=$(LIBWVSTATIC)
-  LIBWVDBUS=$(LIBWVSTATIC)
+  LIBWVDBUS=$(LIBWVSTATIC) $(LIBS_DBUS)
   LIBWVQT=$(LIBWVSTATIC)
   LIBWVTEST=$(WVSTREAMS_LIB)libwvtest.a $(LIBWVUTILS)
 else
@@ -76,7 +76,7 @@ define wvlink_ar
 	    cd $(shell pwd); \
 	done; \
 	for l in $(filter %.list,$2 $($1-EXTRA)); do \
-	    for i in $$(cat $$l | grep -vE '__.SYMDEF|SORTED'); do \
+	    for i in $$(cat $$l); do \
 		$(AR) q $1 $$i; \
 		echo $$i >>$(patsubst %.a,%.list,$1); \
 	    done; \

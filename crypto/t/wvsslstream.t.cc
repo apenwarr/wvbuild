@@ -296,6 +296,7 @@ WVTEST_MAIN("ssl establish connection")
 
     // check for BUGZID:10781
     char data[20000];
+    memset(data, 'A', sizeof(data));
     size_t wlen = ssl->write(data, sizeof(data));
 
     printf("Wrote %zd bytes\n", wlen);
@@ -319,7 +320,7 @@ WVTEST_MAIN("ssl establish connection")
 
 WVTEST_MAIN("x509 refcounting")
 {
-    WvX509Mgr *x509 = new WvX509Mgr("cn=random_stupid_dn,dn=foo", 512);
+    WvX509Mgr *x509 = new WvX509Mgr("cn=random_stupid_dn,dn=foo", 1536);
     WvIStreamList list;
     WvSSLStream *s1, *s2;
     sslloop(list, *x509, s1, s2, true);
