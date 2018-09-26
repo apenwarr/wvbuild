@@ -12,7 +12,7 @@ cat >config.mk <<-EOF
 	WVMAKEFILE=Makefile
 EOF
 
-make wvports/openssl wvports/dbus wvports/boost
+make -j12 wvports/openssl wvports/dbus wvports/boost
 
 echo "--> Configuring WvStreams..."
 mkdir -p "$MYHOST"
