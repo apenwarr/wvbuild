@@ -1,5 +1,5 @@
 #!/bin/sh -x
-MYHOST=i586-mingw32msvc
+MYHOST=i686-w64-mingw32
 export P="$PWD"
 set -e
 
@@ -22,7 +22,7 @@ mkdir -p "$MYHOST"
 (cd wvstreams && ./autogen.sh)
 (set -x; cd "$MYHOST" && \
 	XCPPFLAGS="-I$P/wvports/boost/build/boost" \
-	../wvstreams/configure-mingw32 \
+	../wvstreams/configure-mingw \
 		--disable-debug \
 		--disable-optimization \
 		--with-openssl=$P/wvports/openssl/build/openssl \
