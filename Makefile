@@ -15,10 +15,10 @@ DLLEXT=a
 update_lib:=true
 else
 ifeq "$(shell uname -s)" "Darwin"
-DLLEXT=dylib
+DLLEXT=a
 update_lib:=$(warning FIXME: I don't know how to generate symlinks for shared libraries.)
 else
-DLLEXT=so
+DLLEXT=a
 update_lib=PATH=${PATH}:/sbin ldconfig -N lib
 endif
 endif
