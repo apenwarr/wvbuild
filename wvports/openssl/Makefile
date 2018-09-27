@@ -23,7 +23,7 @@ endef
 define compile
 	make -C build/openssl \
 		CC="$(CC)" RANLIB="$(RANLIB)" AR="$(ARRC)" \
-		CFLAG="-DNOCRYPT -DL_ENDIAN -DDSO_WIN32 -O3 -march=i486 -Wall -DBN_ASM -DMD5_ASM -DSHA1_ASM -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_NO_KRB5 -DOPENSSL_NO_DYNAMIC_ENGINE -DNO_WINDOWS_BRAINDEATH"
+		CFLAG="-DNOCRYPT -DL_ENDIAN -DDSO_WIN32 -O3 -Wall -DBN_ASM -DMD5_ASM -DSHA1_ASM -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_NO_KRB5 -DOPENSSL_NO_DYNAMIC_ENGINE -DNO_WINDOWS_BRAINDEATH"
 endef
 
 
@@ -32,7 +32,7 @@ else
 # Normal Unix build
 
 define prepare
-	cd build/openssl && ./config -DPURIFY -shared -g
+	cd build/openssl && KERNEL_BITS=64 ./config -DPURIFY no-shared -g
 endef
 
 define compile

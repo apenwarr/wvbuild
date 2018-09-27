@@ -5,6 +5,7 @@
  * A WvStream that authenticates with PAM before allowing any reading or
  * writing.  See wvpam.h.
  */
+#include <pwd.h>
 #include "wvlog.h"
 #include "wvpam.h"
 #include "wvautoconf.h"
