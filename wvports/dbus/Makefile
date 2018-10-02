@@ -1,5 +1,4 @@
 
-include ../../config.mk
 include ../wvports.mk
 
 define unpack

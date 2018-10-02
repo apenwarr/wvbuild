@@ -1,5 +1,4 @@
 
-include ../../config.mk
 include ../wvports.mk
 
 # Really no reason that we need to get the sources of w32api and compile them

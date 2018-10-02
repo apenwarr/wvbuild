@@ -1,31 +1,24 @@
-#!/bin/sh -x
+#!/bin/sh
 MYHOST=i686-w64-mingw32
-export P="$PWD"
-set -e
-
 rm -f config.mk
 cat >config.mk <<-EOF
 	MYHOST=$MYHOST
 	CONFIGHOST=--host=$MYHOST
 	CC=$MYHOST-gcc
 	AR=$MYHOST-ar
-	ARRC=\$(AR) rc
+	ARRC="$MYHOST-ar rc"
 	RANLIB=$MYHOST-ranlib
 	WV_BUILD_MINGW=1
-	export CC AR RANLIB
+	export CONFIGHOST CC AR ARRC RANLIB WV_BUILD_MINGW
+	MYPORTS="zlib openssl dbus boost win32api"
+
+	myconfigure() {
+		XCPPFLAGS="-I$PWD/wvports/boost/build/boost" \
+		../wvstreams/configure-mingw \
+			--disable-debug \
+			--disable-optimization \
+			--with-openssl=$PWD/wvports/openssl/build/openssl \
+			--with-zlib=$PWD/wvports/zlib/build/zlib \
+			--with-dbus=$PWD/wvports/dbus/build/dbus
+	}
 EOF
-
-make -j12 wvports/zlib wvports/openssl wvports/dbus wvports/boost wvports/win32api
-
-echo "--> Configuring WvStreams..."
-mkdir -p "$MYHOST"
-(cd wvstreams && ./autogen.sh)
-(set -x; cd "$MYHOST" && \
-	XCPPFLAGS="-I$P/wvports/boost/build/boost" \
-	../wvstreams/configure-mingw \
-		--disable-debug \
-		--disable-optimization \
-		--with-openssl=$P/wvports/openssl/build/openssl \
-		--with-zlib=$P/wvports/zlib/build/zlib \
-		--with-dbus=$P/wvports/dbus/build/dbus \
-		"$@") || exit $?

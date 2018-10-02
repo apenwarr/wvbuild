@@ -1,7 +1,9 @@
 *~
 *.o
-config.mk
-i686-w64-mingw32/
-wvstreamsobj
-x86_64-linux
-i?86-linux
+/config.mk
+/config2.mk
+/i686-w64-mingw32/
+/wvstreamsobj
+/x86_64-linux
+/i?86-linux
+/.redo

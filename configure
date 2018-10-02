@@ -1,28 +1,14 @@
-#!/bin/sh -x
-
-set -e
-
-if [ "x$MYHOST" = x ]; then
-    MYHOST=wvstreamsobj
-fi
-
+#!/bin/sh
 rm -f config.mk
 cat >config.mk <<-EOF
-	MYHOST=$MYHOST
-	WVMAKEFILE=Makefile
+	MYHOST=wvstreamsobj
+	MYPORTS="zlib openssl dbus boost"
+	myconfigure() {
+		../wvstreams/configure \
+			--enable-debug \
+			--disable-optimization \
+			--with-openssl=../wvports/openssl/build/openssl \
+			--with-dbus=../wvports/dbus/build/dbus \
+			CPPFLAGS="-I../wvports/boost/build/boost"
+	}
 EOF
-
-make -j12 wvports/openssl wvports/dbus wvports/boost
-
-echo "--> Configuring WvStreams..."
-mkdir -p "$MYHOST"
-(cd wvstreams && ./autogen.sh)
-(set -x; cd "$MYHOST" && \
-	../wvstreams/configure \
-		--enable-debug \
-		--disable-optimization \
-		--with-openssl=../wvports/openssl/build/openssl \
-		--with-dbus=../wvports/dbus/build/dbus \
-		CPPFLAGS="-I../wvports/boost/build/boost" \
-		"$@") || exit $?
-

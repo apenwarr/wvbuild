@@ -1,6 +1,6 @@
 
-include ../../config.mk
 include ../wvports.mk
+-include ../../config2.mk
 
 define unpack
 	ln -s openssl-0.9.8g $(BUILDDIR)/openssl
