@@ -16,7 +16,7 @@ define prepare
 endef
 
 define compile
-	$(MAKE) -C $(BUILDDIR)/dbus/dbus libdbus-1.la
+	+$(MAKE) -C $(BUILDDIR)/dbus/dbus libdbus-1.la
 endef
 
 %.diff:EXCLUDE= Makefile stamp-* messagebus rc.messagebus \
