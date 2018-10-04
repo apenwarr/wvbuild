@@ -1,0 +1,23 @@
+#!/bin/sh
+MYHOST=i686-w64-mingw32
+rm -f config.mk
+cat >config.mk <<-EOF
+	CONFIGHOST=--host=$MYHOST
+	CC=$MYHOST-gcc
+	AR=$MYHOST-ar
+	ARRC="$MYHOST-ar rc"
+	RANLIB=$MYHOST-ranlib
+	WV_BUILD_MINGW=32
+	export CONFIGHOST CC AR ARRC RANLIB WV_BUILD_MINGW
+	MYPORTS="zlib openssl dbus boost win32api"
+
+	myconfigure() {
+		XCPPFLAGS="-I$PWD/wvports/boost/build/boost" \
+		../wvstreams/configure-mingw32 \
+			--disable-debug \
+			--disable-optimization \
+			--with-openssl=$PWD/wvports/openssl/build/openssl \
+			--with-zlib=$PWD/wvports/zlib/build/zlib \
+			--with-dbus=$PWD/wvports/dbus/build/dbus
+	}
+EOF
