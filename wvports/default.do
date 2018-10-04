@@ -105,6 +105,9 @@ if contains "$path" "/" && ! contains "$port" "/" && [ -d "$port" ]; then
       all)
         redo-ifchange "$port/compile"
         ;;
+      clean)
+        rm -rf "$port/build"
+        ;;
       *)
         echo "Unknown wvports step: $cmd" >&2
         exit 1

@@ -1,5 +1,11 @@
 exec >&2
 case "$1" in
+    wvstreams/clean)
+    	if [ -e config.mk ]; then
+    	    . ./config.mk
+    	    rm -rf "$MYHOST"
+    	fi
+    	;;
     wvstreams/*)
     	redo-ifchange config.mk wvconfig
         target=${1#wvstreams/}
