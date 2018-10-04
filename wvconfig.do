@@ -1,7 +1,7 @@
 exec >&2
 redo-ifchange config.mk autogen wvports/all
 . ./config.mk
-mkdir -p "$MYHOST" &&
+mkdir -p out &&
 set -x &&
-cd "$MYHOST" &&
+cd out &&
 myconfigure

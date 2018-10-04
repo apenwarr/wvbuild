@@ -2,7 +2,6 @@
 MYHOST=i686-w64-mingw32
 rm -f config.mk
 cat >config.mk <<-EOF
-	MYHOST=$MYHOST
 	CONFIGHOST=--host=$MYHOST
 	CC=$MYHOST-gcc
 	AR=$MYHOST-ar

@@ -1,7 +1,6 @@
 #!/bin/sh
 rm -f config.mk
 cat >config.mk <<-EOF
-	MYHOST=wvstreamsobj
 	MYPORTS="zlib openssl dbus boost"
 	myconfigure() {
 		../wvstreams/configure \

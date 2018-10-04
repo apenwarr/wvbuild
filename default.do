@@ -3,7 +3,7 @@ case "$1" in
     wvstreams/clean)
     	if [ -e config.mk ]; then
     	    . ./config.mk
-    	    rm -rf "$MYHOST"
+            rm -rf out
     	fi
     	;;
     wvstreams/*)
@@ -11,7 +11,7 @@ case "$1" in
         target=${1#wvstreams/}
         . ./config.mk
         redo-always &&
-        exec make -C "$MYHOST" "$target"
+        exec make -C out "$target"
         ;;
     *)
         echo "Don't know how to make '$1'" >&2
