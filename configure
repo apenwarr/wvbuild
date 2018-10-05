@@ -1,13 +1,13 @@
 #!/bin/sh
-rm -f config.mk
-cat >config.mk <<-EOF
-	MYPORTS="zlib openssl dbus boost"
+rm -f _config.mk
+cat >_config.mk <<-EOF
+	MYPORTS="zlib openssl dbus"
 	myconfigure() {
 		../wvstreams/configure \
 			--enable-debug \
 			--disable-optimization \
-			--with-openssl=../wvports/openssl/build/openssl \
-			--with-dbus=../wvports/dbus/build/dbus \
-			CPPFLAGS="-I../wvports/boost/build/boost"
+			--with-openssl=$PWD/wvports/openssl/build/openssl \
+			--with-dbus=$PWD/wvports/dbus/build/dbus \
+			$*
 	}
 EOF

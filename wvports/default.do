@@ -88,6 +88,7 @@ do_patch() (
 if contains "$path" "/" && ! contains "$port" "/" && [ -d "$port" ]; then
     case $cmd in
       extract)
+        redo-ifchange ../config.mk &&
         do_extract
         ;;
       patch)

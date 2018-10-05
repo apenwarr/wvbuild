@@ -1,6 +1,7 @@
 *~
 *.o
 /config.mk
+/_config.mk
 /out
 /.redo
 *.redo*.tmp

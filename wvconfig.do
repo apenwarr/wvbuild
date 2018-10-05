@@ -1,7 +1,9 @@
 exec >&2
-redo-ifchange config.mk autogen wvports/all
+redo-ifchange config.mk wvports/all
 . ./config.mk
 mkdir -p out &&
 set -x &&
 cd out &&
-myconfigure
+myconfigure &&
+touch .stamp &&
+redo-ifchange .stamp

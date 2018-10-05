@@ -1,7 +1,7 @@
 #!/bin/sh
 MYHOST=x86_64-w64-mingw32
-rm -f config.mk
-cat >config.mk <<-EOF
+rm -f _config.mk
+cat >_config.mk <<-EOF
 	CONFIGHOST=--host=$MYHOST
 	CC=$MYHOST-gcc
 	AR=$MYHOST-ar
@@ -9,15 +9,15 @@ cat >config.mk <<-EOF
 	RANLIB=$MYHOST-ranlib
 	WV_BUILD_MINGW=64
 	export CONFIGHOST CC AR ARRC RANLIB WV_BUILD_MINGW
-	MYPORTS="zlib openssl dbus boost"
+	MYPORTS="zlib openssl dbus"
 
 	myconfigure() {
-		XCPPFLAGS="-I$PWD/wvports/boost/build/boost" \
 		../wvstreams/configure-mingw64 \
 			--disable-debug \
 			--disable-optimization \
 			--with-openssl=$PWD/wvports/openssl/build/openssl \
 			--with-zlib=$PWD/wvports/zlib/build/zlib \
-			--with-dbus=$PWD/wvports/dbus/build/dbus
+			--with-dbus=$PWD/wvports/dbus/build/dbus \
+			$*
 	}
 EOF
